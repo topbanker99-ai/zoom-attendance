@@ -198,7 +198,10 @@
   <section class="card">
     <div class="livehead">
       <h2 style="margin:0"><span class="step">2</span>실시간 현황</h2>
-      <span class="livetime" id="liveTime"></span>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-sec btn-sm" id="syncLiveBtn" title="지금 줌에 접속해 있는 사람 전체를 다시 불러옵니다">🔄 현재 접속자 새로고침</button>
+        <span class="livetime" id="liveTime"></span>
+      </div>
     </div>
     <div class="stats">
       <div class="stat s-zoom"><div class="v" id="stZoom">0</div><div class="l">현재 줌 접속</div></div>
@@ -340,7 +343,7 @@
   var DEFAULT_VOICE_TEXT='안녕하세요. 한국농어촌공사 교육 안내입니다. 오늘 농지이용 및 관리 기본 교육이 진행 중입니다. 아직 접속하지 않으신 분은 안내해 드린 줌 링크로 입장해 주시기 바랍니다. 감사합니다.';
   var DEFAULT_SMS_TEXT='[한국농어촌공사] 농지이용 및 관리 기본(비대면) 교육이 진행 중입니다. 아직 미접속하셨다면 줌으로 입장해 주세요. https://us02web.zoom.us/j/7561927819';
   var state={ rosterText:'', roster:[], snap:{c1:[],c2:[],c3:[]}, manual:{c1:{},c2:{},c3:{}}, snapTime:{c1:'',c2:'',c3:''}, settings:{meetingId:'7561927819', token:''}, voice:{from:'',voiceType:'FEMALE',text:DEFAULT_VOICE_TEXT}, sms:{from:'',text:DEFAULT_SMS_TEXT} };
-  var live={ participants:[], updatedAt:null, ok:false, lastPoll:null, err:'' };
+  var live={ participants:[], updatedAt:null, ok:false, lastPoll:null, err:'', liveSyncOk:false, liveSyncReason:'' };
 
   function save(){ try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){} }
   function load(){
@@ -406,8 +409,44 @@
         if(/Failed to fetch|HTTP 5/.test(live.err)) showBanner('서버에 연결할 수 없습니다. Vercel 배포와 환경변수(Redis) 설정을 확인하세요.');
         else if(/HTTP 401/.test(live.err)) showBanner('접근 토큰이 올바르지 않습니다. 설정에서 토큰을 확인하세요.'); });
   }
-  function startPoll(){ stopPoll(); fetchStatus(); pollTimer=setInterval(fetchStatus, 4000); }
-  function stopPoll(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+  function startPoll(){ stopPoll(); fetchStatus(); pollTimer=setInterval(fetchStatus, 4000); startLiveSync(); }
+  function stopPoll(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } stopLiveSync(); }
+
+  // ---------- live full-roster sync (Zoom Dashboard API) ----------
+  // Pulls EVERYONE currently in the meeting (even people who joined before we
+  // connected) and seeds the server, so mid-meeting connects still see all.
+  var liveSyncTimer=null, liveSyncBusy=false;
+  function syncLive(manual){
+    var mid=(state.settings.meetingId||'').replace(/\D/g,'');
+    if(!mid){ if(manual) showBanner('줌 회의 ID를 먼저 입력하고 저장하세요.'); return; }
+    if(liveSyncBusy) return;
+    liveSyncBusy=true;
+    var btn=$('#syncLiveBtn'); if(manual&&btn){ btn.disabled=true; btn.textContent='⏳ 불러오는 중…'; }
+    fetch('/api/zoom-live?meetingId='+encodeURIComponent(mid), {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.ok){
+          live.liveSyncOk=true; live.liveSyncReason='';
+          fetchStatus(); // immediately reflect the freshly-seeded roster
+          if(manual) hideBanner();
+        } else {
+          live.liveSyncOk=false; live.liveSyncReason=(d&&d.reason)||'error';
+          if(manual) showBanner(liveSyncMsg(live.liveSyncReason));
+        }
+      })
+      .catch(function(e){ live.liveSyncOk=false; live.liveSyncReason='network';
+        if(manual) showBanner('줌 접속자를 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); })
+      .finally(function(){ liveSyncBusy=false; var b=$('#syncLiveBtn'); if(b){ b.disabled=false; b.textContent='🔄 현재 접속자 새로고침'; } });
+  }
+  function liveSyncMsg(reason){
+    if(reason==='no_credentials') return '줌 자동 인식을 켜려면 Vercel에 줌 앱 정보 3가지(ZOOM_ACCOUNT_ID·ZOOM_CLIENT_ID·ZOOM_CLIENT_SECRET)를 추가해야 해요.';
+    if(reason==='plan_or_scope') return '줌 앱에 "대시보드 참가자 보기" 권한이 없거나, 현재 줌 요금제가 대시보드(Business 이상)를 지원하지 않을 수 있어요. (입·퇴장 자동 기록은 그대로 작동해요.)';
+    if(reason==='auth') return '줌 앱 정보(계정 ID·Client ID·Secret)가 올바르지 않아요. Vercel 환경변수를 확인하세요.';
+    if(reason==='not_live') return '지금 진행 중인 회의가 아니에요. 줌 회의가 시작된 뒤에 눌러주세요.';
+    return '줌 접속자를 불러오지 못했어요. 잠시 후 다시 시도해주세요.';
+  }
+  function startLiveSync(){ stopLiveSync(); syncLive(false); liveSyncTimer=setInterval(function(){ syncLive(false); }, 10000); }
+  function stopLiveSync(){ if(liveSyncTimer){ clearInterval(liveSyncTimer); liveSyncTimer=null; } }
 
   function showBanner(msg){ var b=$('#banner'); b.textContent=msg; b.classList.add('show'); }
   function hideBanner(){ $('#banner').classList.remove('show'); }
@@ -549,6 +588,8 @@
     state.settings.token=$('#setToken').value.trim();
     save(); startPoll();
   });
+
+  $('#syncLiveBtn').addEventListener('click',function(){ syncLive(true); });
 
   $$('[data-confirm]').forEach(function(btn){
     btn.addEventListener('click',function(){
