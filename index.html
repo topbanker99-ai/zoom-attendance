@@ -171,13 +171,16 @@
   <!-- Roster -->
   <section class="card">
     <h2><span class="step">1</span>등록 명단 입력</h2>
-    <p class="hint">한 줄에 한 명씩 <b>이름</b>을 붙여넣으면 출석 체크는 됩니다. 음성 전화까지 보내려면 이름 뒤에 <b>전화번호</b>도 적어주세요. 예: <code style="background:#f3efe2;padding:1px 6px;border-radius:5px">홍길동 010-1234-5678</code></p>
+    <p class="hint">직접 붙여넣거나 <b>엑셀 파일을 올리면</b> 자동으로 채워집니다. 한 줄에 한 명씩 <b>이름</b>(전화 체크는 됨), 음성 전화까지 보내려면 <b>전화번호</b>도. 예: <code style="background:#f3efe2;padding:1px 6px;border-radius:5px">홍길동 010-1234-5678</code> · 엑셀은 <b>1열 이름, 2열 전화번호</b></p>
     <textarea id="rosterInput" placeholder="홍길동&#10;김영희&#10;박철수&#10;이순신&#10;..."></textarea>
     <div class="row">
       <button class="btn btn-pri" id="applyRoster">명단 적용</button>
+      <button class="btn btn-sec" id="excelBtn">📊 엑셀 올리기</button>
+      <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none">
       <span>등록 인원 <span class="roster-count" id="rosterCount">0</span>명</span>
       <button class="btn btn-sec btn-sm" id="toggleRoster" style="margin-left:auto">명단 보기/숨기기</button>
     </div>
+    <p class="hint" id="excelMsg" style="margin-top:8px;display:none"></p>
     <div class="chiplist" id="rosterList" style="display:none"></div>
   </section>
 
@@ -246,8 +249,8 @@
 
   <!-- Voice -->
   <section class="card" id="voiceCard">
-    <h2><span class="step">📞</span>음성 안내 발송 <span class="paychip">관리자 전용 · 유료(건당 ~250원)</span></h2>
-    <p class="hint">미참석자에게 자동으로 전화를 걸어 음성 안내(TTS)를 보냅니다. <b>실제로 전화가 발신되고 과금</b>되니, 발송 전 인원·비용을 꼭 확인하세요.</p>
+    <h2><span class="step">📞</span>음성 안내 발송 <span class="paychip">관리자 전용</span></h2>
+    <p class="hint">미참석자에게 자동으로 전화를 걸어 음성 안내(TTS)를 보냅니다. <b>실제로 전화가 발신</b>되니, 발송 전 대상 인원을 꼭 확인하세요.</p>
 
     <div class="vgrid">
       <div class="fld"><label>관리자 키 (ADMIN_KEY)</label><input id="vAdmin" type="password" placeholder="Vercel에 설정한 ADMIN_KEY"><span class="sub">발송할 때마다 입력 (저장 안 됨)</span></div>
@@ -270,11 +273,44 @@
     </div>
 
     <div class="toolbar">
-      <button class="btn btn-sec" id="vPreview">미리보기 (비용 확인)</button>
+      <button class="btn btn-sec" id="vPreview">미리보기 (대상 확인)</button>
       <button class="btn btn-pri" id="vSend" style="background:var(--gold600)">📞 전화 발송</button>
       <span class="sp"></span>
     </div>
     <div id="vResult" class="vresult" style="display:none"></div>
+  </section>
+
+  <!-- SMS -->
+  <section class="card" id="smsCard">
+    <h2><span class="step">✉️</span>문자(SMS) 발송 <span class="paychip" style="color:var(--g700);background:var(--okbg);border-color:#cfe4d2">관리자 전용</span></h2>
+    <p class="hint">미참석자에게 <b>줌 링크가 담긴 문자</b>를 보냅니다. 음성과 달리 링크를 함께 보낼 수 있어요. 45자가 넘으면 자동으로 장문(LMS)으로 발송됩니다.</p>
+
+    <div class="vgrid">
+      <div class="fld"><label>관리자 키 (ADMIN_KEY)</label><input id="sAdmin" type="password" placeholder="음성과 동일한 ADMIN_KEY"><span class="sub">발송할 때마다 입력 (저장 안 됨)</span></div>
+      <div class="fld"><label>발신번호 (솔라피 등록 번호)</label><input id="sFrom" inputmode="numeric" placeholder="01048448209"></div>
+      <div class="fld"><label> </label><span class="sub" style="padding-top:10px">문자는 통화 연결 없이 즉시 발송됩니다.</span></div>
+    </div>
+
+    <div class="fld" style="margin-top:12px"><label>문자 내용 <span id="sLen" class="sub" style="font-weight:600"></span></label>
+      <textarea id="sText" style="min-height:88px"></textarea></div>
+
+    <div style="margin-top:14px">
+      <label style="font-size:12.5px;font-weight:700;color:var(--ink2)">발송 대상</label>
+      <div class="vtargets">
+        <label class="vtab"><input type="radio" name="starget" value="missing" checked> 실시간 미참석자 <span id="stMissing">(0명)</span></label>
+        <label class="vtab"><input type="radio" name="starget" value="all"> 등록 명단 전체 <span id="stAll">(0명)</span></label>
+        <label class="vtab"><input type="radio" name="starget" value="manual"> 직접 입력(테스트)</label>
+      </div>
+      <textarea id="sManual" style="min-height:70px;margin-top:10px;display:none" placeholder="전화번호를 한 줄에 하나씩 (테스트용)&#10;010-1234-5678&#10;010-2222-3333"></textarea>
+      <p class="hint" id="sTargetNote" style="margin-top:8px"></p>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-sec" id="sPreview">미리보기 (대상 확인)</button>
+      <button class="btn btn-pri" id="sSend">✉️ 문자 발송</button>
+      <span class="sp"></span>
+    </div>
+    <div id="sResult" class="vresult" style="display:none"></div>
   </section>
 
   <p class="foot">
@@ -283,6 +319,7 @@
   </p>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -291,7 +328,8 @@
   var CPS=['c1','c2','c3'], CPL={c1:'1차',c2:'2차',c3:'3차'};
   var LS='zoomatt_v1', uid=1;
   var DEFAULT_VOICE_TEXT='안녕하세요. 한국농어촌공사 교육 안내입니다. 오늘 농지이용 및 관리 기본 교육이 진행 중입니다. 아직 접속하지 않으신 분은 안내해 드린 줌 링크로 입장해 주시기 바랍니다. 감사합니다.';
-  var state={ rosterText:'', roster:[], snap:{c1:[],c2:[],c3:[]}, manual:{c1:{},c2:{},c3:{}}, snapTime:{c1:'',c2:'',c3:''}, settings:{meetingId:'7561927819', token:''}, voice:{from:'',voiceType:'FEMALE',text:DEFAULT_VOICE_TEXT} };
+  var DEFAULT_SMS_TEXT='[한국농어촌공사] 농지이용 및 관리 기본(비대면) 교육이 진행 중입니다. 아직 미접속하셨다면 줌으로 입장해 주세요. https://us02web.zoom.us/j/7561927819';
+  var state={ rosterText:'', roster:[], snap:{c1:[],c2:[],c3:[]}, manual:{c1:{},c2:{},c3:{}}, snapTime:{c1:'',c2:'',c3:''}, settings:{meetingId:'7561927819', token:''}, voice:{from:'',voiceType:'FEMALE',text:DEFAULT_VOICE_TEXT}, sms:{from:'',text:DEFAULT_SMS_TEXT} };
   var live={ participants:[], updatedAt:null, ok:false, lastPoll:null, err:'' };
 
   function save(){ try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){} }
@@ -303,6 +341,7 @@
       state.snapTime=Object.assign({c1:'',c2:'',c3:''}, o.snapTime||{});
       state.settings=Object.assign({meetingId:'7561927819',token:''}, o.settings||{});
       state.voice=Object.assign({from:'',voiceType:'FEMALE',text:DEFAULT_VOICE_TEXT}, o.voice||{});
+      state.sms=Object.assign({from:'',text:DEFAULT_SMS_TEXT}, o.sms||{});
       var mx=0; state.roster.forEach(function(r){ if(r.id>mx)mx=r.id; }); uid=mx+1;
     }catch(e){}
   }
@@ -434,7 +473,11 @@
     var vmEl=document.getElementById('vtMissing'), vaEl=document.getElementById('vtAll');
     if(vmEl) vmEl.textContent='('+state.roster.filter(function(r){return !herePresentIds[r.id] && r.phone;}).length+'명)';
     if(vaEl) vaEl.textContent='('+state.roster.filter(function(r){return r.phone;}).length+'명)';
+    var smEl=document.getElementById('stMissing'), saEl=document.getElementById('stAll');
+    if(smEl) smEl.textContent='('+state.roster.filter(function(r){return !herePresentIds[r.id] && r.phone;}).length+'명)';
+    if(saEl) saEl.textContent='('+state.roster.filter(function(r){return r.phone;}).length+'명)';
     if(typeof updateVoiceNote==='function') updateVoiceNote();
+    if(typeof updateSmsNote==='function') updateSmsNote();
   }
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
@@ -445,6 +488,48 @@
     state.manual={c1:{},c2:{},c3:{}};
     $('#rosterCount').textContent=state.roster.length;
     renderChips(); save(); render();
+  });
+
+  // 엑셀 업로드 → 명단 자동 채우기 (1열 이름, 2열 전화번호)
+  function applyRosterFromText(text){
+    $('#rosterInput').value=text;
+    state.rosterText=text;
+    state.roster=parseRoster(text);
+    state.manual={c1:{},c2:{},c3:{}};
+    $('#rosterCount').textContent=state.roster.length;
+    renderChips(); save(); render();
+  }
+  $('#excelBtn').addEventListener('click',function(){ $('#excelInput').click(); });
+  $('#excelInput').addEventListener('change',function(ev){
+    var file=ev.target.files && ev.target.files[0]; if(!file) return;
+    var msg=$('#excelMsg'); msg.style.display='block'; msg.style.color='var(--ink2)'; msg.textContent='엑셀 읽는 중…';
+    var reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        if(typeof XLSX==='undefined'){ msg.style.color='#a3322b'; msg.textContent='엑셀 기능을 불러오지 못했습니다. 인터넷 연결 확인 후 새로고침해 주세요.'; ev.target.value=''; return; }
+        var wb=XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+        var ws=wb.Sheets[wb.SheetNames[0]];
+        var rows=XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:''});
+        var HEADER=/이름|성명|전화|연락|번호|휴대|name|phone|tel|mobile/i;
+        var hasPhone=function(s){ return /\d{9,}/.test(String(s).replace(/[^0-9]/g,'')); };
+        var lines=[];
+        rows.forEach(function(row){
+          if(!row) return;
+          var cells=row.map(function(c){return String(c==null?'':c).trim();}).filter(function(c){return c!=='';});
+          if(!cells.length) return;
+          var joined=cells.join(' ');
+          if(!cells.some(hasPhone) && HEADER.test(joined)) return; // 머리글 줄 건너뛰기
+          lines.push(joined);
+        });
+        if(!lines.length){ msg.style.color='#a3322b'; msg.textContent='엑셀에서 명단을 찾지 못했습니다. 1열 이름, 2열 전화번호 형식인지 확인해 주세요.'; ev.target.value=''; return; }
+        applyRosterFromText(lines.join('\n'));
+        var withPhone=state.roster.filter(function(r){return r.phone;}).length;
+        msg.style.color='#1d5a2c'; msg.textContent='✅ '+state.roster.length+'명 불러옴 (전화번호 있는 '+withPhone+'명). 명단이 적용되었습니다.';
+      }catch(err){ msg.style.color='#a3322b'; msg.textContent='엑셀을 읽는 중 오류가 났습니다: '+(err.message||err); }
+      ev.target.value='';
+    };
+    reader.onerror=function(){ msg.style.color='#a3322b'; msg.textContent='파일을 읽을 수 없습니다.'; ev.target.value=''; };
+    reader.readAsArrayBuffer(file);
   });
   function renderChips(){ var b=$('#rosterList'); b.innerHTML=''; state.roster.forEach(function(r){ var c=document.createElement('span'); c.className='chip'; c.textContent=r.name+(r.phone?' 📞':''); b.appendChild(c); }); }
   $('#toggleRoster').addEventListener('click',function(){ var b=$('#rosterList'); b.style.display=b.style.display==='none'?'flex':'none'; });
@@ -541,7 +626,7 @@
     vShow('확인 중…');
     callVoice(p).then(function(r){
       if(!r.ok){ vShow('⚠️ '+(r.d.error||'오류'), 'err'); return; }
-      vShow('대상 <b>'+r.d.count+'명</b> · 1건당 약 '+r.d.estPerWon+'원 · <b>예상 총 '+(r.d.estTotalWon||0).toLocaleString()+'원</b><br>(실제는 통화 시간에 따라 달라집니다) · 샘플: '+(r.d.sample||[]).join(', '));
+      vShow('대상 <b>'+r.d.count+'명</b> · 샘플: '+(r.d.sample||[]).join(', '));
     }).catch(function(e){ vShow('⚠️ 서버 연결 실패: '+e.message+' — 배포·환경변수(SOLAPI·ADMIN_KEY) 설정을 확인하세요.', 'err'); });
   });
 
@@ -552,17 +637,71 @@
     if(!$('#vAdmin').value){ vShow('관리자 키를 입력하세요.', 'err'); return; }
     if(!p.from){ vShow('발신번호를 입력하세요.', 'err'); return; }
     var estSec=Math.max(5, Math.ceil([].slice.call(p.text||'').length/5)); var est=(200+4*estSec)*p.recipients.length;
-    if(!confirm('정말 '+p.recipients.length+'명에게 음성 전화를 발송할까요?\n\n예상 비용 약 '+est.toLocaleString()+'원 (실제 통화 시간에 따라 변동)\n※ 실제로 전화가 발신되고 과금됩니다.')) return;
+    if(!confirm('정말 '+p.recipients.length+'명에게 음성 전화를 발송할까요?\n\n※ 실제로 전화가 발신됩니다.')) return;
     vShow('📞 발송 중…');
     callVoice(p).then(function(r){
       if(!r.ok){ vShow('⚠️ '+(r.d.error||'발송 실패'), 'err'); return; }
-      vShow('✅ <b>'+r.d.count+'명</b> 발송 접수 완료 (예상 '+(r.d.estTotalWon||0).toLocaleString()+'원). 잠시 후 전화가 발신됩니다.', 'ok');
+      vShow('✅ <b>'+r.d.count+'명</b> 발송 접수 완료. 잠시 후 전화가 발신됩니다.', 'ok');
     }).catch(function(e){ vShow('⚠️ 서버 연결 실패: '+e.message, 'err'); });
   });
 
   $$('input[name="vtarget"]').forEach(function(rb){ rb.addEventListener('change', syncManualBox); });
   $('#vManual').addEventListener('input', updateVoiceNote);
   ['vFrom','vVoice','vText'].forEach(function(id){ $('#'+id).addEventListener('change', saveVoice); });
+
+  // ---------- sms send ----------
+  function smsByteLen(s){ var n=0; s=String(s); for(var i=0;i<s.length;i++){ n += s.charCodeAt(i)>0x7f?2:1; } return n; }
+  function smsRecipients(){
+    var mode=(document.querySelector('input[name="starget"]:checked')||{}).value||'missing';
+    if(mode==='manual'){
+      var arr=($('#sManual').value||'').split(/\r?\n/).map(function(x){return digitsOnly(x);}).filter(function(d){return d.length>=9;});
+      return { phones:arr, note: arr.length? ('직접 입력 '+arr.length+'개 번호') : '전화번호를 입력하세요' };
+    }
+    var hereIds=matchNames(live.participants).ids;
+    var pool = (mode==='all') ? state.roster.slice() : state.roster.filter(function(r){ return !hereIds[r.id]; });
+    var withPhone=pool.filter(function(r){return r.phone;});
+    var skipped=pool.length-withPhone.length;
+    return { phones:withPhone.map(function(r){return digitsOnly(r.phone);}),
+      note:(mode==='all'?'등록 명단 중 ':'미참석자 중 ')+'전화번호 있는 '+withPhone.length+'명'+(skipped?(' · 번호 없는 '+skipped+'명 제외'):'') };
+  }
+  function updateSmsNote(){ var el=$('#sTargetNote'); if(el) el.textContent=smsRecipients().note; var L=$('#sLen'); if(L){ var b=smsByteLen($('#sText').value||''); L.textContent='· '+b+'byte '+(b>90?'(장문 LMS)':'(단문 SMS)'); } }
+  function syncSManual(){ var v=(document.querySelector('input[name="starget"]:checked')||{}).value; var m=$('#sManual'); if(m) m.style.display = v==='manual'?'block':'none'; updateSmsNote(); }
+  function saveSms(){ state.sms={ from:$('#sFrom').value, text:$('#sText').value }; save(); }
+  function smsPayload(dry){ var r=smsRecipients(); return { recipients:r.phones, text:$('#sText').value, from:$('#sFrom').value, dryRun:!!dry }; }
+  function sShow(html,kind){ var el=$('#sResult'); el.style.display='block'; el.className='vresult '+(kind||''); el.innerHTML=html; }
+  function callSms(payload){
+    return fetch('/api/sms',{ method:'POST', headers:{'Content-Type':'application/json','x-admin-key':$('#sAdmin').value}, body:JSON.stringify(payload) })
+      .then(function(res){ return res.json().then(function(d){ return {ok:res.ok, d:d}; }, function(){ return {ok:false, d:{error:'서버 응답을 읽을 수 없습니다'}}; }); });
+  }
+  $('#sPreview').addEventListener('click',function(){
+    saveSms();
+    var p=smsPayload(true);
+    if(!p.recipients.length){ sShow('수신 대상이 없습니다.','err'); return; }
+    if(!$('#sAdmin').value){ sShow('관리자 키를 입력하세요.','err'); return; }
+    sShow('확인 중…');
+    callSms(p).then(function(r){
+      if(!r.ok){ sShow('⚠️ '+(r.d.error||'오류'),'err'); return; }
+      sShow('대상 <b>'+r.d.count+'명</b> · '+r.d.type+' · 샘플: '+(r.d.sample||[]).join(', '));
+    }).catch(function(e){ sShow('⚠️ 서버 연결 실패: '+e.message+' — 배포·환경변수 확인','err'); });
+  });
+  $('#sSend').addEventListener('click',function(){
+    saveSms();
+    var p=smsPayload(false);
+    if(!p.recipients.length){ sShow('수신 대상이 없습니다.','err'); return; }
+    if(!$('#sAdmin').value){ sShow('관리자 키를 입력하세요.','err'); return; }
+    if(!p.from){ sShow('발신번호를 입력하세요.','err'); return; }
+    var b=smsByteLen(p.text||''); var per=b>90?40:20; var est=per*p.recipients.length;
+    if(!confirm('정말 '+p.recipients.length+'명에게 문자를 발송할까요?\n\n('+(b>90?'장문 LMS':'단문 SMS')+')\n※ 실제로 문자가 발송됩니다.')) return;
+    sShow('✉️ 발송 중…');
+    callSms(p).then(function(r){
+      if(!r.ok){ sShow('⚠️ '+(r.d.error||'발송 실패'),'err'); return; }
+      sShow('✅ <b>'+r.d.count+'명</b>에게 '+r.d.type+' 발송 접수 완료.','ok');
+    }).catch(function(e){ sShow('⚠️ 서버 연결 실패: '+e.message,'err'); });
+  });
+  $$('input[name="starget"]').forEach(function(rb){ rb.addEventListener('change', syncSManual); });
+  $('#sManual').addEventListener('input', updateSmsNote);
+  $('#sText').addEventListener('input', updateSmsNote);
+  ['sFrom','sText'].forEach(function(id){ $('#'+id).addEventListener('change', saveSms); });
 
   // ---------- init ----------
   load();
@@ -574,6 +713,9 @@
   $('#vVoice').value=state.voice.voiceType||'FEMALE';
   $('#vText').value=state.voice.text||DEFAULT_VOICE_TEXT;
   syncManualBox();
+  $('#sFrom').value=state.sms.from||'';
+  $('#sText').value=state.sms.text||DEFAULT_SMS_TEXT;
+  syncSManual();
   renderChips(); render();
   startPoll();
   document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible') startPoll(); else stopPoll(); });
