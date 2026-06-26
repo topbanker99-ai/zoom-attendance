@@ -115,6 +115,17 @@
   .foot{color:var(--ink2);font-size:12.5px;text-align:center;padding:22px 0 40px;line-height:1.7}
   .banner{background:var(--redbg);border:1px solid #eccac7;color:#a3322b;border-radius:11px;padding:11px 14px;font-size:13.5px;margin:14px 0;display:none}
   .banner.show{display:block}
+  .fld select{border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-family:var(--sans);font-size:14px;background:#fff}
+  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+  .vtargets{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .vtab{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:13.5px;font-weight:600;cursor:pointer;background:#fcfcfa}
+  .vtab input{accent-color:var(--g700)}
+  .vtab span{color:var(--ink2);font-weight:700;font-size:12px}
+  .paychip{font-size:12px;font-weight:700;color:var(--gold600);background:var(--warnbg);border:1px solid #ecdca8;border-radius:999px;padding:3px 9px}
+  .vresult{margin-top:12px;border-radius:11px;padding:12px 14px;font-size:13.5px;background:#f4f2ea;border:1px solid var(--line);line-height:1.6}
+  .vresult.ok{background:var(--okbg);border-color:#cfe4d2;color:#1d5a2c}
+  .vresult.err{background:var(--redbg);border-color:#eccac7;color:#a3322b}
+  @media(max-width:780px){.vgrid{grid-template-columns:1fr}}
 
   @media(max-width:780px){.setbody{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.cps{grid-template-columns:1fr}.brand-sub,.brand-div{display:none}}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -160,7 +171,7 @@
   <!-- Roster -->
   <section class="card">
     <h2><span class="step">1</span>등록 명단 입력</h2>
-    <p class="hint">한 줄에 한 명씩, <b>이름만</b> 붙여넣으면 됩니다. (브라우저에 저장되어 다음에도 유지됩니다.)</p>
+    <p class="hint">한 줄에 한 명씩 <b>이름</b>을 붙여넣으면 출석 체크는 됩니다. 음성 전화까지 보내려면 이름 뒤에 <b>전화번호</b>도 적어주세요. 예: <code style="background:#f3efe2;padding:1px 6px;border-radius:5px">홍길동 010-1234-5678</code></p>
     <textarea id="rosterInput" placeholder="홍길동&#10;김영희&#10;박철수&#10;이순신&#10;..."></textarea>
     <div class="row">
       <button class="btn btn-pri" id="applyRoster">명단 적용</button>
@@ -233,6 +244,39 @@
     </div>
   </section>
 
+  <!-- Voice -->
+  <section class="card" id="voiceCard">
+    <h2><span class="step">📞</span>음성 안내 발송 <span class="paychip">관리자 전용 · 유료(건당 ~250원)</span></h2>
+    <p class="hint">미참석자에게 자동으로 전화를 걸어 음성 안내(TTS)를 보냅니다. <b>실제로 전화가 발신되고 과금</b>되니, 발송 전 인원·비용을 꼭 확인하세요.</p>
+
+    <div class="vgrid">
+      <div class="fld"><label>관리자 키 (ADMIN_KEY)</label><input id="vAdmin" type="password" placeholder="Vercel에 설정한 ADMIN_KEY"><span class="sub">발송할 때마다 입력 (저장 안 됨)</span></div>
+      <div class="fld"><label>발신번호 (솔라피 등록 번호)</label><input id="vFrom" inputmode="numeric" placeholder="025701234"></div>
+      <div class="fld"><label>음성 성별</label><select id="vVoice"><option value="FEMALE">여성</option><option value="MALE">남성</option></select></div>
+    </div>
+
+    <div class="fld" style="margin-top:12px"><label>음성 문구 (TTS로 읽어줍니다)</label>
+      <textarea id="vText" style="min-height:88px"></textarea></div>
+
+    <div style="margin-top:14px">
+      <label style="font-size:12.5px;font-weight:700;color:var(--ink2)">발송 대상</label>
+      <div class="vtargets">
+        <label class="vtab"><input type="radio" name="vtarget" value="missing" checked> 실시간 미참석자 <span id="vtMissing">(0명)</span></label>
+        <label class="vtab"><input type="radio" name="vtarget" value="all"> 등록 명단 전체 <span id="vtAll">(0명)</span></label>
+        <label class="vtab"><input type="radio" name="vtarget" value="manual"> 직접 입력(테스트)</label>
+      </div>
+      <textarea id="vManual" style="min-height:70px;margin-top:10px;display:none" placeholder="전화번호를 한 줄에 하나씩 (테스트용)&#10;010-1234-5678&#10;010-2222-3333"></textarea>
+      <p class="hint" id="vTargetNote" style="margin-top:8px"></p>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-sec" id="vPreview">미리보기 (비용 확인)</button>
+      <button class="btn btn-pri" id="vSend" style="background:var(--gold600)">📞 전화 발송</button>
+      <span class="sp"></span>
+    </div>
+    <div id="vResult" class="vresult" style="display:none"></div>
+  </section>
+
   <p class="foot">
     한국농어촌공사 인재개발원 · 줌 실시간 자동 출석 — 명단·출석 확정 기록은 이 브라우저에 저장됩니다.<br>
     줌 접속자 정보는 서버(Vercel)를 통해 실시간으로 받아옵니다.
@@ -246,7 +290,8 @@
   var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
   var CPS=['c1','c2','c3'], CPL={c1:'1차',c2:'2차',c3:'3차'};
   var LS='zoomatt_v1', uid=1;
-  var state={ rosterText:'', roster:[], snap:{c1:[],c2:[],c3:[]}, manual:{c1:{},c2:{},c3:{}}, snapTime:{c1:'',c2:'',c3:''}, settings:{meetingId:'7561927819', token:''} };
+  var DEFAULT_VOICE_TEXT='안녕하세요. 한국농어촌공사 교육 안내입니다. 오늘 농지이용 및 관리 기본 교육이 진행 중입니다. 아직 접속하지 않으신 분은 안내해 드린 줌 링크로 입장해 주시기 바랍니다. 감사합니다.';
+  var state={ rosterText:'', roster:[], snap:{c1:[],c2:[],c3:[]}, manual:{c1:{},c2:{},c3:{}}, snapTime:{c1:'',c2:'',c3:''}, settings:{meetingId:'7561927819', token:''}, voice:{from:'',voiceType:'FEMALE',text:DEFAULT_VOICE_TEXT} };
   var live={ participants:[], updatedAt:null, ok:false, lastPoll:null, err:'' };
 
   function save(){ try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){} }
@@ -257,6 +302,7 @@
       state.manual=Object.assign({c1:{},c2:{},c3:{}}, o.manual||{});
       state.snapTime=Object.assign({c1:'',c2:'',c3:''}, o.snapTime||{});
       state.settings=Object.assign({meetingId:'7561927819',token:''}, o.settings||{});
+      state.voice=Object.assign({from:'',voiceType:'FEMALE',text:DEFAULT_VOICE_TEXT}, o.voice||{});
       var mx=0; state.roster.forEach(function(r){ if(r.id>mx)mx=r.id; }); uid=mx+1;
     }catch(e){}
   }
@@ -268,14 +314,17 @@
             .replace(/\b(host|cohost|me)\b/gi,' ')
             .replace(/[\s,|\t·．.]+/g,'').toLowerCase();
   }
+  function phoneDigits(s){ var m=String(s).match(/\d[\d\-\s]{7,}\d/); if(!m) return ''; var d=m[0].replace(/\D/g,''); return d.length>=9?d:''; }
   function parseRoster(text){
     var seen={}, out=[];
     text.split(/\r?\n/).forEach(function(line){
       var t=line.trim(); if(!t) return;
-      var name=t.replace(/[,\t|]+/g,' ').trim();
-      var k=nameKey(name), dk=k||name.toLowerCase();
+      var phone=phoneDigits(t);
+      var name=t.replace(/\d[\d\-\s]{7,}\d/,'').replace(/[,\t|]+/g,' ').trim();
+      if(!name) name = phone? ('번호 …'+phone.slice(-4)) : t;
+      var k=nameKey(name), dk=(k||name.toLowerCase())+'|'+phone;
       if(seen[dk]) return; seen[dk]=1;
-      out.push({id:uid++, name:name, key:k});
+      out.push({id:uid++, name:name, key:k, phone:phone});
     });
     return out;
   }
@@ -380,6 +429,12 @@
       cells+='<td>'+(cnt===3?'<span class="res full">전체 참석</span>':(cnt===0?'<span class="res none">전체 결석</span>':'<span class="res part">'+cnt+'/3 참석</span>'))+'</td>';
       tr.innerHTML=cells; body.appendChild(tr);
     });
+
+    // voice target counts
+    var vmEl=document.getElementById('vtMissing'), vaEl=document.getElementById('vtAll');
+    if(vmEl) vmEl.textContent='('+state.roster.filter(function(r){return !herePresentIds[r.id] && r.phone;}).length+'명)';
+    if(vaEl) vaEl.textContent='('+state.roster.filter(function(r){return r.phone;}).length+'명)';
+    if(typeof updateVoiceNote==='function') updateVoiceNote();
   }
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
@@ -391,7 +446,7 @@
     $('#rosterCount').textContent=state.roster.length;
     renderChips(); save(); render();
   });
-  function renderChips(){ var b=$('#rosterList'); b.innerHTML=''; state.roster.forEach(function(r){ var c=document.createElement('span'); c.className='chip'; c.textContent=r.name; b.appendChild(c); }); }
+  function renderChips(){ var b=$('#rosterList'); b.innerHTML=''; state.roster.forEach(function(r){ var c=document.createElement('span'); c.className='chip'; c.textContent=r.name+(r.phone?' 📞':''); b.appendChild(c); }); }
   $('#toggleRoster').addEventListener('click',function(){ var b=$('#rosterList'); b.style.display=b.style.display==='none'?'flex':'none'; });
 
   $('#saveSettings').addEventListener('click',function(){
@@ -451,12 +506,74 @@
     save(); render();
   });
 
+  // ---------- voice send ----------
+  function digitsOnly(s){ var d=String(s).replace(/[^0-9]/g,''); if(d && d[0]!=='0') d='0'+d; return d; }
+  function voiceRecipients(){
+    var mode=(document.querySelector('input[name="vtarget"]:checked')||{}).value||'missing';
+    if(mode==='manual'){
+      var arr=($('#vManual').value||'').split(/\r?\n/).map(function(x){return digitsOnly(x);}).filter(function(d){return d.length>=9;});
+      return { phones:arr, note: arr.length? ('직접 입력 '+arr.length+'개 번호') : '전화번호를 입력하세요' };
+    }
+    var hereIds=matchNames(live.participants).ids;
+    var pool = (mode==='all') ? state.roster.slice() : state.roster.filter(function(r){ return !hereIds[r.id]; });
+    var withPhone=pool.filter(function(r){return r.phone;});
+    var skipped=pool.length-withPhone.length;
+    return {
+      phones:withPhone.map(function(r){return digitsOnly(r.phone);}),
+      note:(mode==='all'?'등록 명단 중 ':'미참석자 중 ')+'전화번호 있는 '+withPhone.length+'명'+(skipped?(' · 번호 없는 '+skipped+'명 제외'):'')
+    };
+  }
+  function updateVoiceNote(){ var el=$('#vTargetNote'); if(el) el.textContent=voiceRecipients().note; }
+  function syncManualBox(){ var v=(document.querySelector('input[name="vtarget"]:checked')||{}).value; var m=$('#vManual'); if(m) m.style.display = v==='manual'?'block':'none'; updateVoiceNote(); }
+  function saveVoice(){ state.voice={ from:$('#vFrom').value, voiceType:$('#vVoice').value, text:$('#vText').value }; save(); }
+  function voicePayload(dry){ var r=voiceRecipients(); return { recipients:r.phones, text:$('#vText').value, from:$('#vFrom').value, voiceType:$('#vVoice').value, dryRun:!!dry }; }
+  function vShow(html, kind){ var el=$('#vResult'); el.style.display='block'; el.className='vresult '+(kind||''); el.innerHTML=html; }
+  function callVoice(payload){
+    return fetch('/api/voice',{ method:'POST', headers:{'Content-Type':'application/json','x-admin-key':$('#vAdmin').value}, body:JSON.stringify(payload) })
+      .then(function(res){ return res.json().then(function(d){ return {ok:res.ok, d:d}; }, function(){ return {ok:false, d:{error:'서버 응답을 읽을 수 없습니다'}}; }); });
+  }
+
+  $('#vPreview').addEventListener('click',function(){
+    saveVoice();
+    var p=voicePayload(true);
+    if(!p.recipients.length){ vShow('수신 대상이 없습니다.', 'err'); return; }
+    if(!$('#vAdmin').value){ vShow('관리자 키를 입력하세요.', 'err'); return; }
+    vShow('확인 중…');
+    callVoice(p).then(function(r){
+      if(!r.ok){ vShow('⚠️ '+(r.d.error||'오류'), 'err'); return; }
+      vShow('대상 <b>'+r.d.count+'명</b> · 1건당 약 '+r.d.estPerWon+'원 · <b>예상 총 '+(r.d.estTotalWon||0).toLocaleString()+'원</b><br>(실제는 통화 시간에 따라 달라집니다) · 샘플: '+(r.d.sample||[]).join(', '));
+    }).catch(function(e){ vShow('⚠️ 서버 연결 실패: '+e.message+' — 배포·환경변수(SOLAPI·ADMIN_KEY) 설정을 확인하세요.', 'err'); });
+  });
+
+  $('#vSend').addEventListener('click',function(){
+    saveVoice();
+    var p=voicePayload(false);
+    if(!p.recipients.length){ vShow('수신 대상이 없습니다.', 'err'); return; }
+    if(!$('#vAdmin').value){ vShow('관리자 키를 입력하세요.', 'err'); return; }
+    if(!p.from){ vShow('발신번호를 입력하세요.', 'err'); return; }
+    var estSec=Math.max(5, Math.ceil([].slice.call(p.text||'').length/5)); var est=(200+4*estSec)*p.recipients.length;
+    if(!confirm('정말 '+p.recipients.length+'명에게 음성 전화를 발송할까요?\n\n예상 비용 약 '+est.toLocaleString()+'원 (실제 통화 시간에 따라 변동)\n※ 실제로 전화가 발신되고 과금됩니다.')) return;
+    vShow('📞 발송 중…');
+    callVoice(p).then(function(r){
+      if(!r.ok){ vShow('⚠️ '+(r.d.error||'발송 실패'), 'err'); return; }
+      vShow('✅ <b>'+r.d.count+'명</b> 발송 접수 완료 (예상 '+(r.d.estTotalWon||0).toLocaleString()+'원). 잠시 후 전화가 발신됩니다.', 'ok');
+    }).catch(function(e){ vShow('⚠️ 서버 연결 실패: '+e.message, 'err'); });
+  });
+
+  $$('input[name="vtarget"]').forEach(function(rb){ rb.addEventListener('change', syncManualBox); });
+  $('#vManual').addEventListener('input', updateVoiceNote);
+  ['vFrom','vVoice','vText'].forEach(function(id){ $('#'+id).addEventListener('change', saveVoice); });
+
   // ---------- init ----------
   load();
   $('#rosterInput').value=state.rosterText||'';
   $('#rosterCount').textContent=state.roster.length;
   $('#setMeeting').value=state.settings.meetingId||'';
   $('#setToken').value=state.settings.token||'';
+  $('#vFrom').value=state.voice.from||'';
+  $('#vVoice').value=state.voice.voiceType||'FEMALE';
+  $('#vText').value=state.voice.text||DEFAULT_VOICE_TEXT;
+  syncManualBox();
   renderChips(); render();
   startPoll();
   document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible') startPoll(); else stopPoll(); });
