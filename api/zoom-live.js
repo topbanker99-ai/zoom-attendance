@@ -136,8 +136,10 @@ export default async function handler(req, res) {
   }
 
   const names = result.names;
+  // Write the dashboard snapshot to its OWN key so it never wipes the webhook's
+  // live:{id} list. status.js returns the union of the two.
   if (names.length > 0) {
-    const key = "live:" + meetingId;
+    const key = "livedash:" + meetingId;
     const obj = {};
     names.forEach((n, idx) => { obj["live_" + idx] = { n: n }; });
     try {
