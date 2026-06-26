@@ -348,7 +348,7 @@
       </a>
     </div>
     <div class="zoom-meta">
-      <span>회의 ID <code>756 192 7819</code></span>
+      <span>회의 ID <code class="js-mid">756 192 7819</code></span>
       <button class="copyid" id="copyId" type="button">회의 ID 복사</button>
       <span>버튼이 열리지 않으면 줌 앱에서 회의 ID로 직접 입장하세요.</span>
     </div>
@@ -576,7 +576,7 @@
       <div class="qa">
         <button class="qa-q" type="button" aria-expanded="false"><span class="qm">Q</span>줌(ZOOM) 접속이 안 돼요.
           <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-        <div class="qa-a"><div class="qa-a-in">상단의 <code>실시간 강의 입장</code> 버튼을 눌러 접속하세요. 열리지 않으면 줌 앱을 최신 버전으로 업데이트한 뒤 회의 ID <code>756 192 7819</code>로 직접 입장하세요. 입장 시 이름은 <b>실명</b>으로 설정해 주세요. 그래도 어려우면 담당자에게 연락 바랍니다.</div></div>
+        <div class="qa-a"><div class="qa-a-in">상단의 <code>실시간 강의 입장</code> 버튼을 눌러 접속하세요. 열리지 않으면 줌 앱을 최신 버전으로 업데이트한 뒤 회의 ID <code class="js-mid">756 192 7819</code>로 직접 입장하세요. 입장 시 이름은 <b>실명</b>으로 설정해 주세요. 그래도 어려우면 담당자에게 연락 바랍니다.</div></div>
       </div>
       <div class="qa">
         <button class="qa-q" type="button" aria-expanded="false"><span class="qm">Q</span>설문조사는 꼭 해야 하나요?
@@ -717,7 +717,8 @@
   var copyBtn = document.getElementById('copyId');
   if(copyBtn){
     copyBtn.addEventListener('click',function(){
-      var id='756 192 7819';
+      var midEl=document.querySelector('.js-mid');
+      var id=(midEl&&midEl.textContent.trim())||'756 192 7819';
       var done=function(){ var t=copyBtn.textContent; copyBtn.textContent='복사됨 ✓'; setTimeout(function(){copyBtn.textContent=t;},1600); };
       if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(id).then(done).catch(done); }
       else { done(); }
@@ -791,6 +792,23 @@
   closeBtn.addEventListener('click',closeM);
   modal.addEventListener('click',function(e){ if(e.target===modal) closeM(); });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); });
+
+  // 담당자가 대시보드에서 저장한 최신 줌 링크를 자동 반영
+  function formatMid(id){
+    id=String(id).replace(/\D/g,'');
+    if(id.length===11) return id.slice(0,3)+' '+id.slice(3,7)+' '+id.slice(7);
+    if(id.length===10) return id.slice(0,3)+' '+id.slice(3,6)+' '+id.slice(6);
+    return id.replace(/(\d{3,4})(?=\d)/g,'$1 ');
+  }
+  fetch('/api/config').then(function(r){return r.json();}).then(function(c){
+    if(c&&c.ok&&c.zoomUrl){
+      document.querySelectorAll('.zoom-enter').forEach(function(a){ a.setAttribute('href', c.zoomUrl); });
+      if(c.meetingId){
+        var disp=formatMid(c.meetingId);
+        document.querySelectorAll('.js-mid').forEach(function(el){ el.textContent=disp; });
+      }
+    }
+  }).catch(function(){});
 })();
 </script>
 </body>
