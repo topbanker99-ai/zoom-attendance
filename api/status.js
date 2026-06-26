@@ -26,12 +26,14 @@ export default async function handler(req, res) {
   }
 
   const key = `live:${meetingId}`;
+  const dashKey = `livedash:${meetingId}`;
 
   try {
     if (req.method === "POST") {
       const action = req.query?.action || "";
       if (action === "reset") {
         await redis.del(key);
+        await redis.del(dashKey);
         res.status(200).json({ ok: true, reset: true });
         return;
       }
@@ -39,17 +41,33 @@ export default async function handler(req, res) {
       return;
     }
 
-    const vals = (await redis.hvals(key)) || [];
+    // Union of the webhook list (live:) and the dashboard snapshot (livedash:),
+    // de-duplicated by name. Neither source overwrites the other.
+    const liveVals = (await redis.hvals(key)) || [];
+    const dashVals = (await redis.hvals(dashKey)) || [];
+    const seen = new Set();
     const names = [];
-    for (const v of vals) {
-      const n = v && typeof v === "object" ? v.n : v;
-      if (n != null && String(n).trim()) names.push(String(n));
-    }
+    const collect = (vals) => {
+      for (const v of vals) {
+        const n = v && typeof v === "object" ? v.n : v;
+        if (n != null && String(n).trim()) {
+          const k = String(n).trim();
+          if (!seen.has(k)) {
+            seen.add(k);
+            names.push(String(n).trim());
+          }
+        }
+      }
+    };
+    collect(liveVals);
+    collect(dashVals);
     const updatedAt = await redis.get(`meta:${meetingId}:updated`);
 
     res.status(200).json({
       participants: names,
       count: names.length,
+      webhookCount: liveVals.length,
+      dashCount: dashVals.length,
       updatedAt: updatedAt || null,
       meetingId,
     });
