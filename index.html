@@ -421,7 +421,7 @@
     var q='?meetingId='+encodeURIComponent(mid)+(state.settings.token?('&token='+encodeURIComponent(state.settings.token)):'');
     fetch('/api/status'+q, {cache:'no-store'})
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-      .then(function(d){ live.participants=Array.isArray(d.participants)?d.participants:[]; live.updatedAt=d.updatedAt||null; live.ok=true; live.err=''; live.lastPoll=Date.now(); hideBanner(); render(); })
+      .then(function(d){ live.participants=Array.isArray(d.participants)?d.participants:[]; live.updatedAt=d.updatedAt||null; live.webhookCount=(typeof d.webhookCount==='number')?d.webhookCount:null; live.dashCount=(typeof d.dashCount==='number')?d.dashCount:null; live.ok=true; live.err=''; live.lastPoll=Date.now(); hideBanner(); render(); updateDiag(); })
       .catch(function(e){ live.ok=false; live.err=String(e.message||e); live.lastPoll=Date.now(); renderConn();
         if(/Failed to fetch|HTTP 5/.test(live.err)) showBanner('서버에 연결할 수 없습니다. Vercel 배포와 환경변수(Redis) 설정을 확인하세요.');
         else if(/HTTP 401/.test(live.err)) showBanner('접근 토큰이 올바르지 않습니다. 설정에서 토큰을 확인하세요.'); });
@@ -445,18 +445,41 @@
         if(d && d.ok){
           live.liveSyncOk=true; live.liveSyncReason='';
           live.zoomReported=(typeof d.zoomReported==='number')?d.zoomReported:null;
-          var zd=$('#zoomDiag');
-          if(zd){ zd.textContent=(live.zoomReported!=null)?('줌 보고 '+live.zoomReported+'명'):''; }
+          updateDiag();
           fetchStatus(); // immediately reflect the freshly-seeded roster
           if(manual) hideBanner();
         } else {
           live.liveSyncOk=false; live.liveSyncReason=(d&&d.reason)||'error';
+          updateDiag();
           if(manual) showBanner(liveSyncMsg(live.liveSyncReason));
         }
       })
       .catch(function(e){ live.liveSyncOk=false; live.liveSyncReason='network';
         if(manual) showBanner('줌 접속자를 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); })
       .finally(function(){ liveSyncBusy=false; var b=$('#syncLiveBtn'); if(b){ b.disabled=false; b.textContent='🔄 현재 접속자 새로고침'; } });
+  }
+  function diagReason(r){
+    if(r==='plan_or_scope') return '권한/요금제 ✕';
+    if(r==='not_live') return '회의 시작 전';
+    if(r==='no_credentials') return '줌앱정보 없음';
+    if(r==='auth') return '인증 실패';
+    if(r==='network') return '네트워크 오류';
+    if(r==='no_meeting') return '회의ID 없음';
+    return r||'오류';
+  }
+  function updateDiag(){
+    var zd=$('#zoomDiag'); if(!zd) return;
+    if(live.liveSyncReason){
+      zd.style.color='#b45309';
+      zd.textContent='줌 동기화 '+diagReason(live.liveSyncReason);
+      return;
+    }
+    zd.style.color='var(--g700)';
+    var parts=[];
+    if(live.zoomReported!=null) parts.push('줌API '+live.zoomReported);
+    if(typeof live.webhookCount==='number' && live.webhookCount!=null) parts.push('웹훅 '+live.webhookCount);
+    if(typeof live.dashCount==='number' && live.dashCount!=null) parts.push('대시 '+live.dashCount);
+    zd.textContent=parts.join(' · ');
   }
   function liveSyncMsg(reason){
     if(reason==='no_credentials') return '줌 자동 인식을 켜려면 Vercel에 줌 앱 정보 3가지(ZOOM_ACCOUNT_ID·ZOOM_CLIENT_ID·ZOOM_CLIENT_SECRET)를 추가해야 해요.';
