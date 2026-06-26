@@ -200,6 +200,7 @@
       <h2 style="margin:0"><span class="step">2</span>실시간 현황</h2>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <button class="btn btn-sec btn-sm" id="syncLiveBtn" title="지금 줌에 접속해 있는 사람 전체를 다시 불러옵니다">🔄 현재 접속자 새로고침</button>
+        <span id="zoomDiag" style="font-size:12.5px;font-weight:700;color:var(--g700)"></span>
         <span class="livetime" id="liveTime"></span>
       </div>
     </div>
@@ -427,6 +428,9 @@
       .then(function(d){
         if(d && d.ok){
           live.liveSyncOk=true; live.liveSyncReason='';
+          live.zoomReported=(typeof d.zoomReported==='number')?d.zoomReported:null;
+          var zd=$('#zoomDiag');
+          if(zd){ zd.textContent=(live.zoomReported!=null)?('줌 보고 '+live.zoomReported+'명'):''; }
           fetchStatus(); // immediately reflect the freshly-seeded roster
           if(manual) hideBanner();
         } else {
@@ -445,7 +449,7 @@
     if(reason==='not_live') return '지금 진행 중인 회의가 아니에요. 줌 회의가 시작된 뒤에 눌러주세요.';
     return '줌 접속자를 불러오지 못했어요. 잠시 후 다시 시도해주세요.';
   }
-  function startLiveSync(){ stopLiveSync(); syncLive(false); liveSyncTimer=setInterval(function(){ syncLive(false); }, 10000); }
+  function startLiveSync(){ stopLiveSync(); syncLive(false); liveSyncTimer=setInterval(function(){ syncLive(false); }, 5000); }
   function stopLiveSync(){ if(liveSyncTimer){ clearInterval(liveSyncTimer); liveSyncTimer=null; } }
 
   function showBanner(msg){ var b=$('#banner'); b.textContent=msg; b.classList.add('show'); }
