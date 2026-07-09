@@ -1,0 +1,71 @@
+{
+  "_설명": "핵심 보조금은 여기서 직접 관리합니다. 날짜·금액·링크를 실제에 맞게 수정하세요.",
+  "_사용법": "deadline은 'YYYY-MM-DD' 형식. 상시 신청은 deadline 대신 status를 '상시'. 매년 반복(신청기간 정해짐)은 period에 기간 텍스트를 적으세요. url은 신청/안내 페이지 주소.",
+  "updated": "2026-07",
+  "items": [
+    {
+      "name": "수산 공익직불금",
+      "target": "조건불리·경영이양 등 대상 어업인",
+      "amount": "어가·유형별 정액 지원",
+      "deadline": "2026-07-31",
+      "org": "해양수산부",
+      "url": "https://www.gov.kr"
+    },
+    {
+      "name": "공익직불제 의무교육",
+      "target": "공익직불금 신청 농업인",
+      "amount": "연 1회 이수 필수 · 미이수 시 직불금 10% 감액",
+      "deadline": "2026-09-30",
+      "org": "농림축산식품부",
+      "url": "https://www.gov.kr"
+    },
+    {
+      "name": "기본형 공익직불금",
+      "target": "자격요건을 갖춘 농업인·농업법인",
+      "amount": "면적직불금 + 소농직불금",
+      "period": "매년 3~5월 신청",
+      "org": "농림축산식품부",
+      "url": "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/154300000409"
+    },
+    {
+      "name": "전략작물직불금",
+      "target": "밀·콩·가루쌀 등 전략작물 재배 농가",
+      "amount": "품목별 ha당 정액 지원",
+      "period": "매년 상반기 신청",
+      "org": "농림축산식품부",
+      "url": "https://www.gov.kr"
+    },
+    {
+      "name": "농어민수당",
+      "target": "관내 거주 농어업인 (지자체별)",
+      "amount": "연 30~60만원 (지자체별 상이)",
+      "period": "지자체 공고 시",
+      "org": "지방자치단체",
+      "url": "https://www.gov.kr"
+    },
+    {
+      "name": "청년농 영농정착지원사업",
+      "target": "만 18~40세, 영농경력 3년 이하 청년",
+      "amount": "월 최대 110만원 (최장 3년)",
+      "period": "매년 초 모집",
+      "org": "농림축산식품부",
+      "url": "https://www.gov.kr"
+    },
+    {
+      "name": "귀농 농업창업 및 주택구입 지원",
+      "target": "귀농 농업인",
+      "amount": "창업자금·주택자금 저리 융자",
+      "status": "상시",
+      "org": "농림축산식품부",
+      "url": "https://www.gov.kr/portal/rcvfvrSvc/dtlEx/154300000011"
+    },
+    {
+      "name": "농업정책자금",
+      "target": "농업인·농업법인",
+      "amount": "시설·운전 자금 저리 융자",
+      "status": "상시",
+      "org": "농림축산식품부·농협",
+      "url": "https://www.gov.kr"
+    }
+  ]
+}

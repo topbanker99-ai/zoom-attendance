@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>농어민 보조금 신청 안내</title>
+<style>
+  :root{
+    --green:#1f7a44; --green-d:#14532d; --green-bg:#e8f4ec;
+    --red:#c62828; --red-bd:#e57373; --red-bg:#fdecec;
+    --amber:#a15c00; --amber-bg:#fff4dc;
+    --blue:#1f5fa8; --blue-bg:#e8f1fb;
+    --ink:#1a201b; --muted:#586159; --line:#e4e1d6; --card:#ffffff; --page:#f7f7f3;
+    --sans:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--page)}
+  body{font-family:var(--sans);color:var(--ink);line-height:1.55;-webkit-text-size-adjust:100%;padding:16px}
+  .wrap{max-width:720px;margin:0 auto}
+  .w-topbar{position:sticky;top:0;z-index:60;background:var(--green-d);margin:-16px -16px 14px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+  .w-topbar a{color:#fff;text-decoration:none;font-size:14px;font-weight:700}
+  .w-topbar a:hover{color:#EAD7A4}
+  .w-topbar span{color:#cfe6d6;font-size:12.5px;font-weight:600}
+
+  .head{background:var(--green-d);border-radius:16px;padding:22px 22px;color:#fff}
+  .head h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+  .head p{font-size:15px;color:#cfe6d6;margin-top:6px}
+  .updated{font-size:13px;color:#a9cdb4;margin-top:10px}
+
+  .sec-label{font-size:15px;font-weight:800;color:var(--green-d);margin:22px 2px 12px;display:flex;align-items:center;gap:8px}
+  .sec-label::before{content:"";width:5px;height:18px;background:var(--green);border-radius:3px}
+  .tabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 14px}
+  .tab{font-family:var(--sans);font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;transition:.12s}
+  .tab:hover{border-color:var(--green);color:var(--green-d)}
+  .tab.on{background:var(--green-d);color:#fff;border-color:var(--green-d)}
+  .tab .tn{font-size:12px;opacity:.75;margin-left:2px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 13px;margin-bottom:6px}
+  .card.urgent{border:1.5px solid var(--red-bd);background:var(--red-bg)}
+  .crow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .badge{display:inline-block;font-size:12px;font-weight:800;padding:2px 9px;border-radius:999px}
+  .b-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+  .card.urgent .b-red{background:#fff}
+  .b-amber{background:var(--amber-bg);color:var(--amber)}
+  .b-green{background:var(--green-bg);color:var(--green)}
+  .b-blue{background:var(--blue-bg);color:var(--blue)}
+  .core-tag{font-size:11px;font-weight:800;color:#a9781e;background:#f6edd6;padding:2px 8px;border-radius:999px}
+  .cname{font-size:15.5px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1.3}
+  .cbot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px}
+  .cmeta{font-size:12.5px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cdue{color:var(--green-d);font-weight:700}
+  .card.urgent .cdue{color:var(--red)}
+  .apply2{font-size:12.5px;font-weight:700;color:var(--green);text-decoration:none;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center;gap:4px}
+  .apply2:hover{color:var(--green-d)}
+  .apply2 svg{width:13px;height:13px}
+
+  .more-btn{width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;
+    font-family:var(--sans);font-size:16px;font-weight:700;color:var(--green-d);cursor:pointer;margin-top:4px}
+  .more-btn:hover{background:var(--green-bg)}
+  .more-btn[hidden]{display:none}
+
+  .pastline{font-size:14px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin-top:6px;line-height:1.6}
+  .pastline b{color:var(--ink)}
+
+  .foot{font-size:12.5px;color:#8a9089;text-align:center;margin-top:22px;line-height:1.6}
+  .state{text-align:center;padding:34px 10px;color:var(--muted);font-size:16px}
+
+  .calc-head{background:var(--green-d);border-radius:14px 14px 0 0;padding:16px 18px;display:flex;align-items:center;gap:12px;margin-top:16px}
+  .calc-head-ico{width:42px;height:42px;border-radius:10px;background:rgba(207,158,55,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .calc-head-t{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.01em;line-height:1.25}
+  .calc-head-s{font-size:13px;color:#cfe6d6;margin-top:3px;line-height:1.4}
+  .calc-grid{background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px;padding:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .calc-card{text-decoration:none;background:var(--page);border:1px solid var(--line);border-radius:12px;padding:16px 15px;display:flex;flex-direction:column;gap:8px}
+  .calc-card:hover{border-color:var(--green);background:var(--green-bg)}
+  .calc-ico{width:38px;height:38px;border-radius:9px;background:var(--green-bg);display:flex;align-items:center;justify-content:center}
+  .calc-t{font-size:16px;font-weight:800;color:var(--green-d);letter-spacing:-.01em}
+  .calc-d{font-size:14px;color:var(--muted);line-height:1.5;flex:1}
+  .calc-d b{color:var(--ink);font-weight:700}
+  .calc-cta{font-size:14px;font-weight:700;color:#a9781e;display:flex;align-items:center;gap:4px}
+  .calc-cta svg{width:14px;height:14px}
+
+  @media (max-width:480px){
+    body{padding:12px}
+    .w-topbar{margin:-12px -12px 12px}
+    .head h1{font-size:21px}
+    .cname{font-size:15px}
+    .cmeta,.cdue{font-size:12px}
+  }
+</style>
+</head>
+<body>
+<div class="w-topbar" id="backBar">
+  <a href="https://zoom-attendance-theta.vercel.app/edu.html">← 교육 안내로 돌아가기</a>
+  <span>농어민 보조금 안내</span>
+</div>
+<script>if(window.self!==window.top){var _bb=document.getElementById("backBar");if(_bb)_bb.style.display="none";}</script>
+<div class="wrap">
+
+  <div class="head">
+    <h1>농어민 보조금 안내</h1>
+    <p>내 농지 예상액을 계산하고, 지원사업 신청 마감일을 한눈에 확인하세요.</p>
+    <div class="updated" id="updated"></div>
+  </div>
+
+  <div class="calc-head">
+    <span class="calc-head-ico" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#EAD7A4" stroke-width="2"/><path d="M8 8h5M8 12h8M8 16h4" stroke="#EAD7A4" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </span>
+    <div>
+      <div class="calc-head-t">내 농지, 얼마나 받을 수 있을까요?</div>
+      <div class="calc-head-s">공식 계산기로 직접 확인해 보세요 · 정부 공식 사이트로 연결됩니다</div>
+    </div>
+  </div>
+  <div class="calc-grid">
+    <a class="calc-card" href="https://www.fbo.or.kr/pesn/my/IqireForm.do?menuId=04101020" target="_blank" rel="noopener">
+      <span class="calc-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="#1f7a44" stroke-width="2"/><path d="M9 9.2l3 4 3-4M12 13.2v4M9.6 14.3h4.8" stroke="#1f7a44" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="calc-t">농지연금 예상연금</div>
+      <div class="calc-d">내 농지로 <b>매월 받을 연금액</b>을 미리 조회</div>
+      <div class="calc-cta">계산해보기 <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#a9781e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </a>
+    <a class="calc-card" href="https://www.fbo.or.kr/pesn/my/LtrpInqForm.do?menuId=04102020" target="_blank" rel="noopener">
+      <span class="calc-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 21v-9M12 12c0-3.2 2.1-5.3 5.3-5.3C17.3 9.9 15.2 12 12 12ZM12 14.2c0-3.2-2.1-5.3-5.3-5.3C6.7 12.1 8.8 14.2 12 14.2Z" stroke="#1f7a44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="calc-t">은퇴직불 예상보조금</div>
+      <div class="calc-d">농지이양 <b>은퇴직불금</b> 예상액을 조회</div>
+      <div class="calc-cta">계산해보기 <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#a9781e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </a>
+    <a class="calc-card" href="https://uni.agrix.go.kr/webportal/main/portalBizPriceCal.do" target="_blank" rel="noopener">
+      <span class="calc-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="#1f7a44" stroke-width="2"/><path d="M8 7.5h8M8 11.5h2.2M13 11.5h3M8 15h2.2M13 15h3M8 18h5.5" stroke="#1f7a44" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+      <div class="calc-t">공익직불금 계산</div>
+      <div class="calc-d">기본형 <b>공익직불금</b> 지급액을 계산</div>
+      <div class="calc-cta">계산해보기 <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#a9781e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </a>
+  </div>
+
+  <div id="content" style="margin-top:24px">
+    <div class="state" id="loading">보조금 정보를 불러오는 중입니다…</div>
+  </div>
+
+  <div class="foot">
+    출처: 행정안전부 보조금24(공공데이터포털) · 매일 자동 갱신<br>
+    D-day는 접속하신 날짜 기준으로 자동 계산됩니다. 정확한 신청 조건은 각 사업 안내 페이지를 확인하세요.
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var ARROW = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+  function today0(){ var d=new Date(); d.setHours(0,0,0,0); return d; }
+  function dday(deadline){
+    if(!deadline) return null;
+    var t=new Date(deadline+"T00:00:00");
+    if(isNaN(t.getTime())) return null;
+    return Math.ceil((t - today0())/86400000);
+  }
+  function fmtDate(s){
+    if(!s) return "";
+    var p=String(s).split("-");
+    if(p.length!==3) return s;
+    return p[0]+"년 "+(+p[1])+"월 "+(+p[2])+"일";
+  }
+  function fmtDateShort(s){
+    if(!s) return "";
+    var p=String(s).split("-");
+    if(p.length!==3) return s;
+    return p[0]+"."+(+p[1])+"."+(+p[2]);
+  }
+
+  // 항목을 표시용으로 분류: {kind, badge, hide, dnum}
+  function classify(it){
+    var d = dday(it.deadline);
+    if(it.deadline && d!==null){
+      if(d < 0) return { hide:true };                                  // 마감 지남 → 숨김
+      if(d === 0) return { kind:"red", badge:"오늘 마감", dnum:d };
+      if(d <= 30) return { kind:"red", badge:"마감 임박 D-"+d, dnum:d };
+      return { kind:"amber", badge:"진행 중 · D-"+d, dnum:d };
+    }
+    if(it.status === "상시") return { kind:"green", badge:"상시 신청", dnum:100000 };
+    if(it.period) return { kind:"blue", badge:it.period, dnum:90000 };
+    return { kind:"blue", badge:"신청기간 문의", dnum:95000 };
+  }
+
+  function cardHTML(it, cinfo, isCore){
+    var urgent = cinfo.kind === "red";
+    var bcls = cinfo.kind==="red"?"b-red":cinfo.kind==="amber"?"b-amber":cinfo.kind==="green"?"b-green":"b-blue";
+    var dueText;
+    if(it.deadline) dueText = "마감 "+esc(fmtDateShort(it.deadline));
+    else if(it.status==="상시") dueText = "상시 신청";
+    else if(it.period) dueText = esc(it.period);
+    else dueText = "신청기간 문의";
+    var tgt = it.target ? " · "+esc(it.target) : "";
+    var coreTag = isCore ? '<span class="core-tag">핵심</span>' : "";
+    var btn = it.url ? '<a class="apply2" href="'+esc(it.url)+'" target="_blank" rel="noopener">신청 안내 '+ARROW+'</a>' : "";
+    return '<div class="card'+(urgent?" urgent":"")+'">'+
+      '<div class="crow"><span class="badge '+bcls+'">'+esc(cinfo.badge)+'</span>'+coreTag+
+        '<span class="cname">'+esc(it.name)+'</span></div>'+
+      '<div class="cbot"><span class="cmeta"><b class="cdue">'+dueText+'</b>'+tgt+'</span>'+btn+'</div>'+
+      '</div>';
+  }
+
+  // 유형(탭) 정의 및 분류
+  var CATS = [
+    { key:"all",   label:"전체" },
+    { key:"nong",  label:"농업" },
+    { key:"chuk",  label:"축산" },
+    { key:"susan", label:"수산·어업" },
+    { key:"gwi",   label:"귀농·귀어·청년" }
+  ];
+  function catOf(it){
+    var hay = [it.name, it.target, it.amount, it.field].join(" ");
+    if(/귀농|귀어|청년/.test(hay)) return "gwi";
+    if(/어업|어선|어가|어촌|어민|수산|양식|원양|해양|천일염|염전|해녀/.test(hay)) return "susan";
+    if(/축산|가축|한우|젖소|양돈|양계|양봉|송아지|낙농|축사|한돈|가금|초지/.test(hay)) return "chuk";
+    return "nong";
+  }
+
+  var STATE = { active: [], pastNames: [], cat: "all" };
+
+  function render(core, api){
+    var active = [], pastNames = [];
+    function add(list, isCore){
+      list.forEach(function(it){
+        var c = classify(it);
+        if(c.hide){ if(it.name) pastNames.push(it.name); return; }
+        it._c = c; it._core = isCore; it._cat = catOf(it); active.push(it);
+      });
+    }
+    add(core, true);
+    add(api, false);
+
+    // 마감 가까운 순 → 동일하면 핵심(큐레이션) 먼저
+    active.sort(function(a,b){
+      if(a._c.dnum !== b._c.dnum) return a._c.dnum - b._c.dnum;
+      return (a._core?0:1) - (b._core?0:1);
+    });
+
+    STATE.active = active;
+    STATE.pastNames = pastNames;
+
+    document.getElementById("content").innerHTML =
+      tabsHTML() + '<div id="listArea"></div>' + pastHTML();
+    bindTabs();
+    renderList(STATE.cat || "all");
+  }
+
+  function tabsHTML(){
+    var counts = { all: STATE.active.length };
+    STATE.active.forEach(function(it){ counts[it._cat] = (counts[it._cat]||0) + 1; });
+    var html = '<div class="sec-label">신청 마감 안내</div><div class="tabs">';
+    CATS.forEach(function(c){
+      if(c.key !== "all" && !counts[c.key]) return; // 항목 없는 유형은 탭 숨김
+      html += '<button class="tab" data-cat="'+c.key+'">'+c.label+
+              ' <span class="tn">'+(counts[c.key]||0)+'</span></button>';
+    });
+    return html + '</div>';
+  }
+
+  function renderList(cat){
+    STATE.cat = cat;
+    var list = (cat === "all") ? STATE.active : STATE.active.filter(function(it){ return it._cat === cat; });
+    var TOP = 10;
+    var top = list.slice(0, TOP), rest = list.slice(TOP);
+
+    var html = "";
+    if(top.length){
+      top.forEach(function(it){ html += cardHTML(it, it._c, it._core); });
+    } else {
+      html += '<div class="pastline">해당 유형의 지원사업이 없습니다.</div>';
+    }
+    if(rest.length){
+      html += '<button class="more-btn" id="moreBtn">더보기 ('+rest.length+'건)</button>';
+      html += '<div id="apiList" style="display:none">';
+      rest.forEach(function(it){ html += cardHTML(it, it._c, it._core); });
+      html += '</div>';
+    }
+    document.getElementById("listArea").innerHTML = html;
+
+    var mb = document.getElementById("moreBtn");
+    if(mb) mb.addEventListener("click", function(){
+      document.getElementById("apiList").style.display = "block";
+      mb.setAttribute("hidden", ""); postHeight();
+    });
+
+    var tabs = document.querySelectorAll(".tab");
+    for(var i=0;i<tabs.length;i++){
+      tabs[i].classList.toggle("on", tabs[i].getAttribute("data-cat") === cat);
+    }
+    postHeight();
+  }
+
+  function bindTabs(){
+    var tabs = document.querySelectorAll(".tab");
+    for(var i=0;i<tabs.length;i++){
+      tabs[i].addEventListener("click", function(){ renderList(this.getAttribute("data-cat")); });
+    }
+  }
+
+  function pastHTML(){
+    if(!STATE.pastNames.length) return "";
+    var uniq = [];
+    STATE.pastNames.forEach(function(n){ if(n && uniq.indexOf(n)<0) uniq.push(n); });
+    var shown = uniq.slice(0, 10);
+    var extra = uniq.length - shown.length;
+    return '<div class="pastline" style="margin-top:14px"><b>올해 마감된 사업:</b> ' +
+      esc(shown.join(", ")) + (extra>0 ? (" 외 "+extra+"건") : "") + '</div>';
+  }
+
+  function showError(msg){
+    document.getElementById("content").innerHTML =
+      '<div class="state">지원사업 정보를 불러오지 못했습니다.<br>잠시 후 새로고침 해 주세요.</div>';
+    postHeight();
+  }
+
+  // iframe 높이 자동 맞춤 (부모 페이지가 리스너를 넣은 경우)
+  function postHeight(){
+    try{
+      var h = document.documentElement.scrollHeight;
+      if(window.parent) window.parent.postMessage({ type:"subsidy-widget-height", height:h }, "*");
+    }catch(e){}
+  }
+  window.addEventListener("resize", postHeight);
+
+  // 데이터 로드 (핵심 먼저 즉시 표시 → API는 뒤이어 채움 + 세션 캐시)
+  var coreData = [], apiData = [], apiUpdated = null, coreDone = false, apiDone = false;
+
+  function setUpdated(){
+    var d = apiUpdated ? new Date(apiUpdated) : new Date();
+    var el = document.getElementById("updated");
+    if(el) el.textContent = "업데이트: " + d.getFullYear() + "." + (d.getMonth()+1) + "." + d.getDate();
+  }
+  function paint(){
+    if(coreDone && apiDone && !coreData.length && !apiData.length){ showError(); return; }
+    setUpdated();
+    render(coreData, apiData);
+  }
+
+  // 1) 핵심 항목 먼저 (작고 빠름) → 즉시 화면 표시
+  fetch("core-subsidies.json", {cache:"force-cache"})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ if(j && Array.isArray(j.items)) coreData = j.items; })
+    .catch(function(){})
+    .then(function(){ coreDone = true; paint(); });
+
+  // 2) 전체 지원사업 — 세션 캐시(내용 있을 때만)가 있으면 즉시, 그리고 항상 최신 재요청
+  try {
+    var cached = sessionStorage.getItem("subsidies_cache_v2");
+    if(cached){
+      var c = JSON.parse(cached);
+      if(c && Array.isArray(c.items) && c.items.length){ apiData = c.items; apiUpdated = c.updatedAt; apiDone = true; paint(); }
+    }
+  } catch(e){}
+
+  fetch("/api/subsidies", {cache:"no-store"})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){
+      if(j && j.ok && Array.isArray(j.items) && j.items.length){
+        apiData = j.items; apiUpdated = j.updatedAt;
+        try { sessionStorage.setItem("subsidies_cache_v2", JSON.stringify({items:j.items, updatedAt:j.updatedAt})); } catch(e){}
+      }
+    })
+    .catch(function(){})
+    .then(function(){ apiDone = true; paint(); });
+})();
+</script>
+</body>
+</html>
