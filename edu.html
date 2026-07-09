@@ -537,7 +537,7 @@
         <p>설문조사를 완료해야 교육 이수가 최종 인정되며 수료증 출력이 가능합니다. 소요 시간 약 5분입니다.</p>
         <div class="tags"><span>7개 분야</span><span>24문항</span><span>필수 작성</span></div>
       </div>
-      <a class="btn btn-survey" href="https://forms.gle/kQVsZjGCWeXUPieJ7" target="_blank" rel="noopener">설문조사 시작하기 →</a>
+      <a class="btn btn-survey survey-enter" href="https://forms.gle/kQVsZjGCWeXUPieJ7" target="_blank" rel="noopener">설문조사 시작하기 →</a>
     </div>
   </div>
 </section>
@@ -828,12 +828,16 @@
     return id.replace(/(\d{3,4})(?=\d)/g,'$1 ');
   }
   fetch('/api/config').then(function(r){return r.json();}).then(function(c){
-    if(c&&c.ok&&c.zoomUrl){
+    if(!c||!c.ok) return;
+    if(c.zoomUrl){
       document.querySelectorAll('.zoom-enter').forEach(function(a){ a.setAttribute('href', c.zoomUrl); });
       if(c.meetingId){
         var disp=formatMid(c.meetingId);
         document.querySelectorAll('.js-mid').forEach(function(el){ el.textContent=disp; });
       }
+    }
+    if(c.surveyUrl){
+      document.querySelectorAll('.survey-enter').forEach(function(a){ a.setAttribute('href', c.surveyUrl); });
     }
   }).catch(function(){});
 })();

@@ -203,6 +203,22 @@
         <button class="btn btn-pri" id="saveZoomLink">🔗 링크 저장 + 농민 페이지에 반영</button>
         <span id="zoomLinkMsg" style="font-size:13px;font-weight:600;line-height:1.5"></span>
       </div>
+
+      <div style="border-top:1px dashed #d8d2bf;margin:10px 0 2px"></div>
+      <div class="fld">
+        <label>📝 농민 설문조사 링크 <span style="color:#9a8f6f;font-weight:600">(구글폼 등 주소)</span></label>
+        <input id="setSurveyUrl" placeholder="https://forms.gle/...">
+        <span class="sub">이 링크를 저장하면 <b>농민 안내 페이지</b>의 설문조사 버튼이 자동으로 바뀝니다. 줌 링크와 따로 저장돼요.</span>
+      </div>
+      <div class="fld">
+        <label>관리자 키 (ADMIN_KEY)</label>
+        <input id="setSurveyAdminKey" type="password" placeholder="Vercel에 설정한 ADMIN_KEY">
+        <span class="sub">링크를 저장할 때만 입력 (저장되지 않음)</span>
+      </div>
+      <div class="fld" style="flex-direction:column;align-items:stretch;gap:8px">
+        <button class="btn btn-pri" id="saveSurveyLink">📝 설문 링크 저장 + 농민 페이지에 반영</button>
+        <span id="surveyLinkMsg" style="font-size:13px;font-weight:600;line-height:1.5"></span>
+      </div>
     </div>
   </details>
 
@@ -705,9 +721,32 @@
         .catch(function(e){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 서버 연결 실패: '+e.message; });
     });
   }
-  // 현재 농민 페이지에 적용된 줌 링크를 불러와 입력칸에 표시
+  // 설문조사 링크 저장 (줌 링크와 독립적으로 저장 — 서로 지워지지 않음)
+  var ssv=$('#saveSurveyLink');
+  if(ssv){
+    ssv.addEventListener('click',function(){
+      var url=$('#setSurveyUrl').value.trim();
+      var adminKey=$('#setSurveyAdminKey').value;
+      var msg=$('#surveyLinkMsg');
+      if(!url){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 설문조사 링크를 붙여넣어 주세요.'; return; }
+      if(!adminKey){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 관리자 키(ADMIN_KEY)를 입력하세요.'; return; }
+      msg.style.color='#6b6b6b'; msg.textContent='⏳ 저장 중…';
+      fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':adminKey},body:JSON.stringify({surveyUrl:url})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok){ msg.style.color='#15803d'; msg.textContent='✅ 저장 완료! 농민 안내 페이지의 설문조사 버튼이 이 링크로 바뀌었어요.'; }
+          else if(d&&d.reason==='unauthorized'){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 관리자 키가 올바르지 않아요. ADMIN_KEY를 다시 확인하세요.'; }
+          else { msg.style.color='#b91c1c'; msg.textContent='⚠️ 저장 실패: '+((d&&d.reason)||'알 수 없음')+' — 배포·환경변수(ADMIN_KEY)를 확인하세요.'; }
+        })
+        .catch(function(e){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 서버 연결 실패: '+e.message; });
+    });
+  }
+  // 현재 농민 페이지에 적용된 줌 링크·설문 링크를 불러와 입력칸에 표시
   fetch('/api/config').then(function(r){return r.json();}).then(function(c){
-    if(c&&c.ok&&c.zoomUrl){ var f=$('#setZoomUrl'); if(f&&!f.value){ f.value=c.zoomUrl; } }
+    if(c&&c.ok){
+      if(c.zoomUrl){ var f=$('#setZoomUrl'); if(f&&!f.value){ f.value=c.zoomUrl; } }
+      if(c.surveyUrl){ var s=$('#setSurveyUrl'); if(s&&!s.value){ s.value=c.surveyUrl; } }
+    }
   }).catch(function(){});
 
   // ===== 교육 시간표 편집기 =====
