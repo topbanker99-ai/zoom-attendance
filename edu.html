@@ -117,6 +117,18 @@
   .qicon{width:38px;height:38px;border-radius:10px;background:var(--g100);display:grid;place-items:center;margin-bottom:4px}
   .qcard b{font-size:15.5px;font-weight:800;letter-spacing:-.01em}
   .qcard span{font-size:12.5px;color:var(--ink2)}
+  .calc-head{background:var(--g800);border-radius:16px 16px 0 0;padding:18px 20px;display:flex;align-items:center;gap:13px}
+  .calc-head-ico{width:44px;height:44px;border-radius:11px;background:rgba(207,158,55,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .calc-head-t{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.01em;line-height:1.25}
+  .calc-head-s{font-size:12.5px;color:#C9DDCB;margin-top:3px;line-height:1.4}
+  .calc-grid{background:var(--panel);border:1px solid var(--line);border-top:none;border-radius:0 0 16px 16px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .calc-card{text-decoration:none;background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:16px 15px;display:flex;flex-direction:column;gap:9px;transition:.16s}
+  .calc-card:hover{border-color:var(--g600);box-shadow:var(--shadow);transform:translateY(-2px)}
+  .calc-ico{width:40px;height:40px;border-radius:10px;background:var(--g100);display:flex;align-items:center;justify-content:center}
+  .calc-t{font-size:15px;font-weight:800;color:var(--g800);letter-spacing:-.01em}
+  .calc-d{font-size:12.5px;color:var(--ink2);line-height:1.5;flex:1}
+  .calc-d b{color:var(--ink)}
+  .calc-cta{font-size:13px;font-weight:700;color:var(--gold600);display:flex;align-items:center;gap:4px}
 
   /* ---------- sections ---------- */
   .section{padding:clamp(48px,7vw,80px) 0}
@@ -315,13 +327,12 @@
 <!-- ===== Nav ===== -->
 <nav class="site-nav" aria-label="섹션 이동">
   <div class="wrap nav-row">
-    <a class="live-link" href="#top">● 실시간 강의</a>
     <a href="#schedule">금일 시간표</a>
-    <a href="#attendance">출석체크(QR)</a>
-    <a href="#criteria">수료 기준</a>
+    <a href="#attendance">출석체크</a>
     <a href="#survey">설문조사</a>
-    <a href="#faq">자주 묻는 질문</a>
     <a href="#contact">담당자 문의</a>
+    <a href="#annual">농업교육일정</a>
+    <a href="#subsidy">보조금 신청일정</a>
   </div>
 </nav>
 
@@ -332,7 +343,7 @@
   <div class="wrap hero-in">
     <p class="eyebrow"><b>한국농어촌공사 인재개발원</b> · 농업인 비대면 교육</p>
     <h1 class="h-title">2026년 농지이용 및 관리<br>기본(비대면) 교육 <em>실시간 강의실</em></h1>
-    <p class="h-sub">제3차 · 2026. 6. 26.(금) · 정원 150명 — 줌(ZOOM)으로 진행되는 실시간 온라인 교육입니다.</p>
+    <p class="h-sub" id="heroSub">제3차 · 2026. 6. 26.(금) · 정원 150명 — 줌(ZOOM)으로 진행되는 실시간 온라인 교육입니다.</p>
 
     <div class="status">
       <span class="pill-live"><span class="blip"></span><span id="statusText">실시간 교육 진행 중</span></span>
@@ -442,30 +453,6 @@
       </div>
     </div>
     <p class="sched-note">※ 교육 일정은 강사 및 교육 여건에 따라 일부 변동될 수 있습니다.</p>
-
-    <div class="rounds">
-      <h3>연간 교육 일정 (총 8회차 · 750명)</h3>
-      <div class="scroll-x">
-        <table class="rd">
-          <thead>
-            <tr>
-              <th class="rh">구분</th>
-              <th>1차</th><th>2차</th><th class="today-col">3차</th><th>4차</th><th>5차</th><th>6차</th><th>7차</th><th>8차</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="rh">날짜</td>
-              <td>4.24(금)</td><td>5.14(목)</td><td class="today-col">6.26(금)</td><td>7.9(목)</td><td>8.27(목)</td><td>9.17(목)</td><td>10.22(목)</td><td>11.19(목)</td>
-            </tr>
-            <tr>
-              <td class="rh">정원</td>
-              <td>100</td><td>150</td><td class="today-col">150</td><td>70</td><td>70</td><td>70</td><td>70</td><td>70</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -628,6 +615,98 @@
   </div>
 </section>
 
+<!-- ===== 농업교육일정 (연간 일정) ===== -->
+<section class="section" id="annual">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">SCHEDULE · 연간 일정</span>
+      <h2 class="sec-title">농업교육 연간 일정</h2>
+      <p class="sec-sub">2026년 농지이용 및 관리 기본(비대면) 교육 — 총 8회차 · 750명 규모로 운영됩니다.</p>
+    </div>
+    <div class="rounds">
+      <h3>연간 교육 일정 (총 8회차 · 750명)</h3>
+      <div class="scroll-x">
+        <table class="rd">
+          <thead>
+            <tr>
+              <th class="rh">구분</th>
+              <th>1차</th><th>2차</th><th class="today-col">3차</th><th>4차</th><th>5차</th><th>6차</th><th>7차</th><th>8차</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rh">날짜</td>
+              <td>4.24(금)</td><td>5.14(목)</td><td class="today-col">6.26(금)</td><td>7.9(목)</td><td>8.27(목)</td><td>9.17(목)</td><td>10.22(목)</td><td>11.19(목)</td>
+            </tr>
+            <tr>
+              <td class="rh">정원</td>
+              <td>100</td><td>150</td><td class="today-col">150</td><td>70</td><td>70</td><td>70</td><td>70</td><td>70</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="sched-note">※ 회차별 일정·정원은 운영 사정에 따라 변경될 수 있습니다. 자세한 일정은 담당자에게 문의해 주세요.</p>
+  </div>
+</section>
+
+<!-- ===== 보조금 신청일정 (계산기) ===== -->
+<section class="section section--tint" id="subsidy">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">SUBSIDY · 보조금 · 연금</span>
+      <h2 class="sec-title">보조금 신청일정 · 예상액 계산</h2>
+      <p class="sec-sub">내 농지로 받을 수 있는 연금·보조금을 공식 계산기로 미리 확인해 보세요.</p>
+    </div>
+
+    <div class="calc-head">
+      <span class="calc-head-ico" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#EAD7A4" stroke-width="2"/><path d="M8 8h5M8 12h8M8 16h4" stroke="#EAD7A4" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <div>
+        <div class="calc-head-t">내 농지, 얼마나 받을 수 있을까요?</div>
+        <div class="calc-head-s">아래 공식 계산기로 직접 확인해 보세요 · 정부 공식 사이트로 연결됩니다</div>
+      </div>
+    </div>
+    <div class="calc-grid">
+      <a class="calc-card" href="https://www.fbo.or.kr/pesn/my/IqireForm.do?menuId=04101020" target="_blank" rel="noopener">
+        <span class="calc-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="#1C6A3C" stroke-width="2"/><path d="M9 9.2l3 4 3-4M12 13.2v4M9.6 14.3h4.8" stroke="#1C6A3C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div class="calc-t">농지연금 예상연금</div>
+        <div class="calc-d">내 농지로 <b>매월 받을 연금액</b>을 미리 조회</div>
+        <div class="calc-cta">계산해보기
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#A9781E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </a>
+
+      <a class="calc-card" href="https://www.fbo.or.kr/pesn/my/LtrpInqForm.do?menuId=04102020" target="_blank" rel="noopener">
+        <span class="calc-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 21v-9M12 12c0-3.2 2.1-5.3 5.3-5.3C17.3 9.9 15.2 12 12 12ZM12 14.2c0-3.2-2.1-5.3-5.3-5.3C6.7 12.1 8.8 14.2 12 14.2Z" stroke="#1C6A3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div class="calc-t">은퇴직불 예상보조금</div>
+        <div class="calc-d">농지이양 <b>은퇴직불금</b> 예상액을 조회</div>
+        <div class="calc-cta">계산해보기
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#A9781E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </a>
+
+      <a class="calc-card" href="https://uni.agrix.go.kr/webportal/main/portalBizPriceCal.do" target="_blank" rel="noopener">
+        <span class="calc-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="#1C6A3C" stroke-width="2"/><path d="M8 7.5h8M8 11.5h2.2M13 11.5h3M8 15h2.2M13 15h3M8 18h5.5" stroke="#1C6A3C" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </span>
+        <div class="calc-t">공익직불금 계산</div>
+        <div class="calc-d">기본형 <b>공익직불금</b> 지급액을 계산</div>
+        <div class="calc-cta">계산해보기
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#A9781E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </a>
+    </div>
+
+    <p class="sched-note">※ 예상액은 참고용이며, 실제 지급액은 농지 평가·심사 결과에 따라 달라집니다. 일부 계산기는 로그인·본인인증이 필요할 수 있습니다. 신청 일정은 담당자에게 문의해 주세요.</p>
+  </div>
+</section>
+
 </main>
 
 <!-- ===== Footer ===== -->
@@ -747,6 +826,44 @@
       }
     });
   });
+
+  // 관리자가 대시보드에서 저장한 교육 시간표를 자동 반영
+  function schToMin(t){ var p=String(t||'').split(':'); var h=+p[0]||0, m=+p[1]||0; return h*60+m; }
+  function schEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  fetch('/api/schedule').then(function(r){return r.json();}).then(function(res){
+    if(!res || !res.ok || !res.schedule || !Array.isArray(res.schedule.rows) || !res.schedule.rows.length) return;
+    var sc=res.schedule;
+    var tg=document.querySelector('.today-bar .tg');
+    if(tg && sc.title) tg.textContent=sc.title;
+    var meta=document.querySelector('.today-bar .meta');
+    if(meta && (sc.date||sc.capacity)){
+      meta.innerHTML='<strong>'+schEsc(sc.date)+'</strong> · 비대면 실시간(ZOOM) · 정원 '+schEsc(sc.capacity)+'명';
+    }
+    var hero=document.getElementById('heroSub');
+    if(hero && (sc.title||sc.date||sc.capacity)){
+      var t2=schEsc(sc.title).replace(/\s*교육\s*$/,'');
+      hero.textContent=t2+' · '+schEsc(sc.date)+' · 정원 '+schEsc(sc.capacity)+'명 — 줌(ZOOM)으로 진행되는 실시간 온라인 교육입니다.';
+    }
+    var tb=document.querySelector('.sched tbody');
+    if(tb){
+      var html='';
+      sc.rows.forEach(function(r){
+        var s=schToMin(r.start), e=schToMin(r.end);
+        var dur=Math.max(0,e-s);
+        var lunchCls=r.lunch?' class="lunch"':'';
+        var flag=r.lunch?'● 점심 시간':'● 지금 진행 중';
+        html+='<tr'+lunchCls+' data-start="'+s+'" data-end="'+e+'">';
+        html+='<td class="t-time">'+schEsc(r.start)+'–'+schEsc(r.end)+'<small>'+dur+'분</small></td>';
+        html+='<td class="t-topic"><b>'+schEsc(r.topic)+'</b>';
+        if(r.teacher) html+='<span>강사 · '+schEsc(r.teacher)+'</span>';
+        if(r.tag) html+='<span class="qr-tag">'+schEsc(r.tag)+'</span>';
+        html+='<span class="now-flag">'+flag+'</span></td></tr>';
+      });
+      tb.innerHTML=html;
+      rows = Array.prototype.slice.call(document.querySelectorAll('.sched tbody tr'));
+      tick();
+    }
+  }).catch(function(){});
 })();
 </script>
 <style>

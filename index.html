@@ -62,6 +62,18 @@
   .fld input{border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-family:var(--sans);font-size:14px}
   .fld input:focus{border-color:var(--g600);outline:none}
   .fld .sub{font-size:11.5px;color:var(--ink2)}
+  .schbody{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+  .fld-3{flex-direction:row;gap:10px}
+  .fld-3>div{flex:1;display:flex;flex-direction:column;gap:5px}
+  .sched-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px;border:1px solid var(--line);border-radius:9px;background:#faf9f4}
+  .sched-row input{border:1px solid var(--line);border-radius:7px;padding:7px 8px;font-size:13px;font-family:var(--sans)}
+  .sched-row input[type=time]{width:104px}
+  .sched-row .sr-topic{flex:2;min-width:150px}
+  .sched-row .sr-teacher{flex:1.4;min-width:110px}
+  .sched-row .sr-tag{flex:1.4;min-width:110px}
+  .sched-row .sr-del{border:none;background:#fdeaea;color:#c0392b;border-radius:7px;padding:7px 10px;cursor:pointer;font-weight:800}
+  .sched-row .sr-lunch{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink2);white-space:nowrap;font-weight:700}
+  .sr-sep{font-size:12px;color:var(--ink2)}
 
   textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);border-radius:11px;padding:12px 13px;font-family:var(--sans);font-size:14.5px;line-height:1.6;background:#fcfcfa}
   textarea:focus{border-color:var(--g600);background:#fff;outline:none}
@@ -190,6 +202,36 @@
       <div class="fld" style="flex-direction:column;align-items:stretch;gap:8px">
         <button class="btn btn-pri" id="saveZoomLink">🔗 링크 저장 + 농민 페이지에 반영</button>
         <span id="zoomLinkMsg" style="font-size:13px;font-weight:600;line-height:1.5"></span>
+      </div>
+    </div>
+  </details>
+
+  <!-- Schedule editor -->
+  <details class="setup" id="schedSetup">
+    <summary>📅 교육 시간표 편집 (농민 페이지에 반영)</summary>
+    <div class="schbody">
+      <div class="fld">
+        <span class="sub" style="margin-bottom:4px">아래 내용을 채우고 저장하면 <b>농민 안내 페이지</b>의 "금일 교육 시간표"가 자동으로 바뀝니다. 시간에 맞춰 "지금 진행 중"도 자동 표시돼요.</span>
+      </div>
+      <div class="fld fld-3">
+        <div><label>교육 회차</label><input id="schTitle" placeholder="제4차 교육"></div>
+        <div><label>날짜</label><input id="schDate" placeholder="2026. 7. 9.(목)"></div>
+        <div><label>정원</label><input id="schCapacity" placeholder="70"></div>
+      </div>
+
+      <div class="fld" style="flex-direction:column;align-items:stretch;gap:6px">
+        <label>시간표 (강의별로 한 줄씩)</label>
+        <div id="schRows"></div>
+        <button class="btn" id="schAddRow" type="button" style="align-self:flex-start">➕ 강의 추가</button>
+      </div>
+
+      <div class="fld">
+        <label>관리자 키 (ADMIN_KEY)</label>
+        <input id="schAdminKey" type="password" placeholder="Vercel에 설정한 ADMIN_KEY">
+      </div>
+      <div class="fld" style="flex-direction:column;align-items:stretch;gap:8px">
+        <button class="btn btn-pri" id="saveSchedule">💾 시간표 저장 + 농민 페이지에 반영</button>
+        <span id="schMsg" style="font-size:13px;font-weight:600;line-height:1.5"></span>
       </div>
     </div>
   </details>
@@ -667,6 +709,82 @@
   fetch('/api/config').then(function(r){return r.json();}).then(function(c){
     if(c&&c.ok&&c.zoomUrl){ var f=$('#setZoomUrl'); if(f&&!f.value){ f.value=c.zoomUrl; } }
   }).catch(function(){});
+
+  // ===== 교육 시간표 편집기 =====
+  var SCH_DEFAULT={
+    title:'제3차 교육', date:'2026. 6. 26.(금)', capacity:'150',
+    rows:[
+      {start:'09:00',end:'09:30',topic:'교육 등록 및 시스템 점검',teacher:'',tag:'📷 1차 출석 · 교육 시작 전',lunch:false},
+      {start:'09:30',end:'11:30',topic:'농지제도의 이해',teacher:'한국농어촌공사 노원숙 부장',tag:'',lunch:false},
+      {start:'11:30',end:'13:00',topic:'농가경영 성공사례',teacher:'용감한농부들 정연우 대표',tag:'',lunch:false},
+      {start:'13:00',end:'14:00',topic:'중식',teacher:'',tag:'📷 2차 출석 · 점심 시간 후',lunch:true},
+      {start:'14:00',end:'15:30',topic:'농지은행사업 및 농지은행관리원의 이해',teacher:'한국농어촌공사 김윤 처장',tag:'',lunch:false},
+      {start:'15:30',end:'17:30',topic:'농지 관련 농업세무',teacher:'INSIGHT TAX 조정민 세무사',tag:'',lunch:false},
+      {start:'17:30',end:'18:00',topic:'교육 설문 및 수료식',teacher:'',tag:'📷 3차 출석 · 마지막 교육 후',lunch:false}
+    ]
+  };
+  function schAttr(s){ return String(s==null?'':s).replace(/"/g,'&quot;'); }
+  function schRowEl(d){
+    d=d||{};
+    var row=document.createElement('div');
+    row.className='sched-row';
+    row.innerHTML=
+      '<input type="time" class="sr-start" value="'+(d.start||'')+'">'
+      +'<span class="sr-sep">~</span>'
+      +'<input type="time" class="sr-end" value="'+(d.end||'')+'">'
+      +'<input type="text" class="sr-topic" placeholder="교육 내용" value="'+schAttr(d.topic)+'">'
+      +'<input type="text" class="sr-teacher" placeholder="강사 (선택)" value="'+schAttr(d.teacher)+'">'
+      +'<input type="text" class="sr-tag" placeholder="출석/QR 표시 (선택)" value="'+schAttr(d.tag)+'">'
+      +'<label class="sr-lunch"><input type="checkbox" class="sr-lunchcb"'+(d.lunch?' checked':'')+'>점심</label>'
+      +'<button type="button" class="sr-del">삭제</button>';
+    row.querySelector('.sr-del').addEventListener('click',function(){ row.remove(); });
+    return row;
+  }
+  function schAddRow(d){ var c=$('#schRows'); if(c) c.appendChild(schRowEl(d)); }
+  function schFill(sc){
+    if($('#schTitle')) $('#schTitle').value=sc.title||'';
+    if($('#schDate')) $('#schDate').value=sc.date||'';
+    if($('#schCapacity')) $('#schCapacity').value=sc.capacity||'';
+    var c=$('#schRows'); if(c){ c.innerHTML=''; (sc.rows||[]).forEach(function(r){ schAddRow(r); }); }
+  }
+  var schAdd=$('#schAddRow');
+  if(schAdd) schAdd.addEventListener('click',function(){ schAddRow({start:'',end:'',topic:'',teacher:'',tag:'',lunch:false}); });
+  // 현재 저장된 시간표 불러오기 (없으면 기본 템플릿)
+  fetch('/api/schedule').then(function(r){return r.json();}).then(function(res){
+    if(res&&res.ok&&res.schedule&&Array.isArray(res.schedule.rows)&&res.schedule.rows.length){ schFill(res.schedule); }
+    else { schFill(SCH_DEFAULT); }
+  }).catch(function(){ schFill(SCH_DEFAULT); });
+  // 저장
+  var saveSch=$('#saveSchedule');
+  if(saveSch){
+    saveSch.addEventListener('click',function(){
+      var msg=$('#schMsg');
+      var adminKey=$('#schAdminKey').value;
+      var rowsEls=Array.prototype.slice.call(document.querySelectorAll('#schRows .sched-row'));
+      var rows=rowsEls.map(function(el){
+        return {
+          start:el.querySelector('.sr-start').value,
+          end:el.querySelector('.sr-end').value,
+          topic:el.querySelector('.sr-topic').value.trim(),
+          teacher:el.querySelector('.sr-teacher').value.trim(),
+          tag:el.querySelector('.sr-tag').value.trim(),
+          lunch:el.querySelector('.sr-lunchcb').checked
+        };
+      }).filter(function(r){ return r.topic || r.start; });
+      if(!rows.length){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 강의를 1개 이상 입력하세요.'; return; }
+      if(!adminKey){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 관리자 키(ADMIN_KEY)를 입력하세요.'; return; }
+      var schedule={ title:$('#schTitle').value.trim(), date:$('#schDate').value.trim(), capacity:$('#schCapacity').value.trim(), rows:rows };
+      msg.style.color='#6b6b6b'; msg.textContent='⏳ 저장 중…';
+      fetch('/api/schedule',{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':adminKey},body:JSON.stringify({schedule:schedule})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.ok){ msg.style.color='#15803d'; msg.textContent='✅ 저장 완료! 농민 안내 페이지의 교육 시간표가 바뀌었어요. (강의 '+rows.length+'개)'; }
+          else if(d&&d.reason==='unauthorized'){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 관리자 키가 올바르지 않아요. ADMIN_KEY를 확인하세요.'; }
+          else { msg.style.color='#b91c1c'; msg.textContent='⚠️ 저장 실패: '+((d&&d.reason)||'알 수 없음'); }
+        })
+        .catch(function(e){ msg.style.color='#b91c1c'; msg.textContent='⚠️ 서버 연결 실패: '+e.message; });
+    });
+  }
 
   $('#syncLiveBtn').addEventListener('click',function(){ syncLive(true); });
 
