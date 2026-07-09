@@ -203,22 +203,6 @@
         <button class="btn btn-pri" id="saveZoomLink">🔗 링크 저장 + 농민 페이지에 반영</button>
         <span id="zoomLinkMsg" style="font-size:13px;font-weight:600;line-height:1.5"></span>
       </div>
-
-      <div style="border-top:1px dashed #d8d2bf;margin:10px 0 2px"></div>
-      <div class="fld">
-        <label>📝 농민 설문조사 링크 <span style="color:#9a8f6f;font-weight:600">(구글폼 등 주소)</span></label>
-        <input id="setSurveyUrl" placeholder="https://forms.gle/...">
-        <span class="sub">이 링크를 저장하면 <b>농민 안내 페이지</b>의 설문조사 버튼이 자동으로 바뀝니다. 줌 링크와 따로 저장돼요.</span>
-      </div>
-      <div class="fld">
-        <label>관리자 키 (ADMIN_KEY)</label>
-        <input id="setSurveyAdminKey" type="password" placeholder="Vercel에 설정한 ADMIN_KEY">
-        <span class="sub">링크를 저장할 때만 입력 (저장되지 않음)</span>
-      </div>
-      <div class="fld" style="flex-direction:column;align-items:stretch;gap:8px">
-        <button class="btn btn-pri" id="saveSurveyLink">📝 설문 링크 저장 + 농민 페이지에 반영</button>
-        <span id="surveyLinkMsg" style="font-size:13px;font-weight:600;line-height:1.5"></span>
-      </div>
     </div>
   </details>
 
@@ -248,6 +232,29 @@
       <div class="fld" style="flex-direction:column;align-items:stretch;gap:8px">
         <button class="btn btn-pri" id="saveSchedule">💾 시간표 저장 + 농민 페이지에 반영</button>
         <span id="schMsg" style="font-size:13px;font-weight:600;line-height:1.5"></span>
+      </div>
+    </div>
+  </details>
+
+  <!-- Survey link editor -->
+  <details class="setup" id="surveySetup">
+    <summary>📝 설문조사 링크 편집 (농민 페이지에 반영)</summary>
+    <div class="schbody">
+      <div class="fld">
+        <span class="sub" style="margin-bottom:4px">설문조사 주소를 넣고 저장하면 <b>농민 안내 페이지</b>의 설문조사 버튼이 그 주소로 자동으로 바뀝니다. 줌 링크와는 따로 저장돼요.</span>
+      </div>
+      <div class="fld">
+        <label>📝 농민 설문조사 링크 <span style="color:#9a8f6f;font-weight:600">(구글폼 등 주소)</span></label>
+        <input id="setSurveyUrl" placeholder="https://forms.gle/...">
+      </div>
+      <div class="fld">
+        <label>관리자 키 (ADMIN_KEY)</label>
+        <input id="setSurveyAdminKey" type="password" placeholder="Vercel에 설정한 ADMIN_KEY">
+        <span class="sub">링크를 저장할 때만 입력 (저장되지 않음)</span>
+      </div>
+      <div class="fld" style="flex-direction:column;align-items:stretch;gap:8px">
+        <button class="btn btn-pri" id="saveSurveyLink">📝 설문 링크 저장 + 농민 페이지에 반영</button>
+        <span id="surveyLinkMsg" style="font-size:13px;font-weight:600;line-height:1.5"></span>
       </div>
     </div>
   </details>
